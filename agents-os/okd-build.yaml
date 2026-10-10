@@ -1,5 +1,12 @@
-# BuildConfig OKD pour Agentic OS Dashboard
+# =============================================================================
+# ⚠️  DEPRECATED — Remplacé par argocd/manifests/agents-os/buildconfig.yaml
+# =============================================================================
+# Ce fichier est conservé pour référence uniquement.
+# Le nouveau BuildConfig utilise un build Git (type: Git) au lieu de Binary.
+# =============================================================================
+
 ---
+# BuildConfig OKD pour Agentic OS Dashboard
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:

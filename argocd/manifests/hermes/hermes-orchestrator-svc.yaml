@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-orchestrator
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: hermes-orchestrator
+spec:
+  ports:
+    - name: api
+      port: 8777
+      targetPort: 8777
+  selector:
+    app.kubernetes.io/name: hermes

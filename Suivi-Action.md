@@ -1,6 +1,8 @@
 # Suivi des Actions — Architecture ArgoCD des Agents AI
 
 > Créé le 2026-10-10 — Audit du déploiement actuel dans le projet `ai` sur `okdsnoapps.vmapps.home`
+> Mis à jour le 2026-10-10 — Actions A-01 à A-04, M-01 à M-04 implémentées ✅
+> Prochaine étape : déployer la Root App ArgoCD (`argocd/root-app.yaml` → `oc apply -f`)
 
 ---
 
@@ -38,49 +40,53 @@
 
 ### 🔴 Priorité Haute
 
-- [ ] **A-01** — Structurer le dossier `argocd/` avec l'architecture App of Apps
-      - Créer `argocd/root-app.yaml` (Application racine)
-      - Créer `argocd/apps/` (6 sous-applications ArgoCD)
-      - Créer `argocd/manifests/` avec les manifests découpés par composant
+- [x] **A-01** — Structurer le dossier `argocd/` avec l'architecture App of Apps ✅
+      - `argocd/root-app.yaml` créé
+      - `argocd/apps/` : 6 sous-applications ArgoCD créées
+      - `argocd/manifests/` : 6 dossiers de manifests découpés par composant
       - Voir plan détaillé §3
 
-- [ ] **A-02** — Convertir le build Binary d'`agents-os` en build Git
-      - Modifier `agents-os/okd-build.yaml` ou créer `argocd/manifests/agents-os/buildconfig.yaml`
-      - Source : `https://github.com/ving3/Agent-OS.git`
-      - Context dir : `agents-os/`
-      - Dockerfile : `agents-os/Dockerfile`
-      - Remplacer `type: Binary` par `type: Git`
+- [x] **A-02** — Convertir le build Binary d'`agents-os` en build Git ✅
+      - `argocd/manifests/agents-os/buildconfig.yaml` créé avec `type: Git`
+      - Source : `https://github.com/ving3/Agent-OS.git`, contextDir: `agents-os/`
+      - Ancien `okd-build.yaml` marqué DEPRECATED
 
-- [ ] **A-03** — Sécuriser les secrets pour GitOps
-      - Installer `SealedSecrets` (bitnami/sealed-secrets) dans le cluster
-      - OU `ExternalSecrets` avec un backend vault
-      - OU au minimum : séparer les secrets templates des valeurs réelles
-      - Les secrets ne doivent **jamais** être commités en clair
+- [x] **A-03** — Sécuriser les secrets pour GitOps ✅
+      - `secret-template.yaml` créé avec valeurs CHANGEME (documentation)
+      - `ignoreDifferences` configuré dans l'Application `ai-infra` pour les PV
+      - Les secrets réels sont appliqués manuellement hors GitOps
+      - SealedSecrets : optionnel, à installer si souhaité
 
-- [ ] **A-04** — Ajouter le dépôt Git dans ArgoCD
-      - Ajouter le token GitHub dans ArgoCD (`argocd repo add`)
-      - Vérifier que le CLI argocd a accès au repo
+- [x] **A-04** — Ajouter le dépôt Git dans ArgoCD ✅
+      - `argocd repo add https://github.com/ving3/Agent-OS.git` — Successful
+      - Authentification avec token GitHub (ving3)
 
 ### 🟡 Priorité Moyenne
 
-- [ ] **M-01** — Nettoyer les manifests existants
-      - Supprimer ou déprécier `docs/01-manifests/` (sera remplacé par `argocd/manifests/`)
-      - Supprimer ou déprécier `deploy/agents-os.yaml` (remplacé par structure ArgoCD)
-      - Supprimer les scripts temporaires de test (`analyze-*.sh`, `setup-*.sh`, etc.)
+- [x] **M-01** — Nettoyer les manifests existants ✅
+      - `docs/01-manifests/kustomization.yaml` : marqué DEPRECATED
+      - `deploy/agents-os.yaml` : marqué DEPRECATED
+      - `agents-os/okd-build.yaml` : marqué DEPRECATED
+      - Scripts temporaires supprimés
 
-- [ ] **M-02** — Ajouter des NetworkPolicies
-      - Isoler le namespace `ai` : interdire les accès depuis d'autres namespaces
-      - Autoriser uniquement les flux internes (hermes → postgres/redis, openwebui → hermes, agents-os → hermes)
+- [x] **M-02** — Ajouter des NetworkPolicies ✅
+      - `allow-dns` : résolution DNS (openshift-dns)
+      - `allow-router-ingress` : accès routeur OKD (ports 8080,8686,8777,9119)
+      - `allow-intra-namespace` : trafic interne au namespace `ai`
+      - `allow-egress-llm` : egress HTTPS Hermes → BytePlus API
+      - `allow-egress-registry` : egress agents-os → registry interne
 
-- [ ] **M-03** — Ajouter des HealthChecks complets
-      - Vérifier que tous les deploiements ont readiness + liveness probes
-      - Hermes a déjà des probes (startup 30s, readiness 60s, liveness 120s)
-      - Vérifier la cohérence des timeouts
+- [x] **M-03** — Ajouter des HealthChecks complets ✅
+      - Tous les deployments ont readiness + liveness probes (vérifié)
+      - Hermes : startupProbe ajoutée (30s, failureThreshold: 30)
+      - Cohérence des timeouts validée
 
-- [ ] **M-04** — Taguer les images avec des versions stables
-      - Remplacer `hermes-agent:latest` par `hermes-agent:<version>` explicite
-      - Remplacer `postgres:16-alpine` par `postgres:16.6-alpine` (pin exact)
-      - Idem pour redis, openwebui
+- [x] **M-04** — Taguer les images avec des versions stables ✅
+      - `hermes-agent:latest` → `nousresearch/hermes-agent:0.3.14`
+      - `postgres:16-alpine` → `postgres:16.6-alpine3.21`
+      - `redis:7-alpine` → `redis:7.4.2-alpine3.21`
+      - `open-webui:main` → `ghcr.io/open-webui/open-webui:v0.11.4` (déjà tagué)
+      - `busybox:1.36` → `busybox:1.37.0`
 
 ### 🟢 Priorité Basse
 
@@ -108,14 +114,23 @@
 
 ```
 argocd/                                  ← Racine ArgoCD
-├── root-app.yaml                        ← Application principale (auto-déploie les enfants)
+├── root-app.yaml                        ← Application principale (App of Apps)
+├── apps/                                ← Applications enfants ArgoCD
+│   ├── ai-infra-app.yaml
+│   ├── postgres-app.yaml
+│   ├── redis-app.yaml
+│   ├── hermes-app.yaml
+│   ├── openwebui-app.yaml
+│   └── agents-os-app.yaml
 └── manifests/                           ← Manifests Kubernetes
     ├── ai-infra/
     │   ├── kustomization.yaml
     │   ├── namespace.yaml
     │   ├── persistentvolumes.yaml        ← PV NFS locaux
     │   ├── persistentvolumeclaims.yaml
-    │   └── networkpolicy.yaml
+    │   ├── networkpolicy.yaml            ← 5 NetworkPolicies
+    │   ├── serviceaccounts.yaml          ← SA hermes, openwebui, agents-os
+    │   └── secret-template.yaml          ← Template (valeurs CHANGEME)
     ├── postgres/
     │   ├── kustomization.yaml
     │   ├── deployment.yaml
@@ -128,8 +143,9 @@ argocd/                                  ← Racine ArgoCD
     │   ├── kustomization.yaml
     │   ├── deployment.yaml
     │   ├── service.yaml
-    │   ├── route.yaml
-    │   └── configmap.yaml
+    │   ├── route.yaml                    ← hermes + hermes-orchestrator
+    │   ├── configmap.yaml
+    │   └── hermes-orchestrator-svc.yaml
     ├── openwebui/
     │   ├── kustomization.yaml
     │   ├── deployment.yaml
@@ -140,8 +156,8 @@ argocd/                                  ← Racine ArgoCD
         ├── deployment.yaml
         ├── service.yaml
         ├── route.yaml
-        ├── rbac.yaml
-        ├── buildconfig.yaml            ← Git-based (Dockerfile dans agents-os/)
+        ├── rbac.yaml                     ← Role + RoleBinding
+        ├── buildconfig.yaml              ← Git-based (type: Git)
         └── imagestream.yaml
 ```
 
@@ -193,24 +209,25 @@ Agent-OS/
 ├── agents-os/                          ← Source + Dockerfile
 │   ├── Dockerfile
 │   ├── requirements.txt
-│   ├── okd-build.yaml                  ← À déprécier
+│   ├── okd-build.yaml                  ← ⚠️ DEPRECATED
 │   └── app/
 │       └── main.py
-├── argocd/                             ← NOUVEAU — Structure GitOps
+├── argocd/                             ← ✅ GitOps — Structure complète
 │   ├── root-app.yaml
+│   ├── apps/                           ← 6 Applications ArgoCD
 │   └── manifests/
-│       ├── ai-infra/
+│       ├── ai-infra/                   ← namespace, PV/PVC, NetworkPolicies, SA
 │       ├── postgres/
 │       ├── redis/
-│       ├── hermes/
+│       ├── hermes/                     ← + hermes-orchestrator
 │       ├── openwebui/
-│       └── agents-os/
-├── docs/                               ← À déprécier ou archiver
+│       └── agents-os/                  ← Build Git + ImageStream + RBAC
+├── docs/                               ← ⚠️ DEPRECATED
 │   └── 01-manifests/
-├── deploy/                             ← À déprécier
+├── deploy/                             ← ⚠️ DEPRECATED
 │   ├── agents-os.yaml
 │   └── agents-os-rbac.yaml
-├── Suivi-Action.md                     ← Ce fichier
+├── Suivi-Action.md                     ← Suivi des actions
 └── README.md
 ```
 
@@ -219,17 +236,17 @@ Agent-OS/
 ## 5. Procédure de déploiement ArgoCD (une fois les manifests prêts)
 
 ```bash
-# 1. Ajouter le repo dans ArgoCD
-argocd repo add https://github.com/ving3/Agent-OS.git \
-  --username ving3 \
-  --password <github-token> \
-  --insecure-skip-tls-verify
+# ✅ Étape 1 déjà faite : repo ajouté dans ArgoCD
+#    https://github.com/ving3/Agent-OS.git — Successful
 
-# 2. Déployer la Root App
-oc apply -f argocd/root-app.yaml -n okd-gitops
+# 2. Déployer la Root App (depuis Windows PowerShell avec WSL)
+wsl -- oc apply -f /mnt/c/Users/ving/Projets/Agent-OS/argocd/root-app.yaml -n okd-gitops
 
 # 3. Vérifier la synchronisation
-argocd --grpc-web app list
-argocd --grpc-web app get hermes-agents
-argocd --grpc-web app get hermes
+wsl -- argocd --grpc-web app list
+wsl -- argocd --grpc-web app get hermes-agents-root
+wsl -- argocd --grpc-web app get hermes
+
+# 4. Créer le secret ai-secrets (une seule fois, valeurs réelles)
+wsl -- bash -c "export KUBECONFIG=/home/ving/okdsnoapps-kubeconfig; oc apply -f /mnt/c/Users/ving/Projets/Agent-OS/docs/01-manifests/01-secrets.yaml -n ai"
 ```

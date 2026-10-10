@@ -1,0 +1,19 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: agents-os
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: agents-os
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  host: agents-os.apps.okdsnoapps.vmapps.home
+  to:
+    kind: Service
+    name: agents-os
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

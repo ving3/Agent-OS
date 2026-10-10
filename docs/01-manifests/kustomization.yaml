@@ -1,3 +1,10 @@
+# =============================================================================
+# ⚠️  DEPRECATED — Remplacé par argocd/manifests/
+# =============================================================================
+# Ce dossier est conservé pour référence uniquement.
+# Utiliser les manifests dans argocd/ pour tout nouveau déploiement.
+# =============================================================================
+
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: ai

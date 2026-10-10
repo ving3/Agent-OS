@@ -1,0 +1,39 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: hermes
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: hermes
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  host: hermes.apps.okdsnoapps.vmapps.home
+  to:
+    kind: Service
+    name: hermes
+    weight: 100
+  port:
+    targetPort: api
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: hermes-orchestrator
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: hermes-orchestrator
+spec:
+  host: hermes-orchestrator-ai.apps.okdsnoapps.vmapps.home
+  to:
+    kind: Service
+    name: hermes-orchestrator
+    weight: 100
+  port:
+    targetPort: api
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

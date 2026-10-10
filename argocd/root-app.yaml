@@ -1,0 +1,27 @@
+# Root Application — App of Apps pour Hermes Agents
+# Déploie toutes les sous-applications ArgoCD qui gèrent le projet ai
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hermes-agents-root
+  namespace: okd-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ving3/Agent-OS.git
+    targetRevision: main
+    path: argocd/apps
+    directory:
+      recurse: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: okd-gitops
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true

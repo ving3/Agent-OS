@@ -1,3 +1,10 @@
+# =============================================================================
+# ⚠️  DEPRECATED — Remplacé par argocd/manifests/agents-os/
+# =============================================================================
+# Ce fichier est conservé pour référence uniquement.
+# Utiliser les manifests dans argocd/ pour tout nouveau déploiement.
+# =============================================================================
+
 ---
 apiVersion: v1
 kind: Service

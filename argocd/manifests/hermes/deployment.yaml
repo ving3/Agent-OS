@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: hermes
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hermes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hermes
+    spec:
+      serviceAccountName: hermes
+      enableServiceLinks: false
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: hermes
+          image: nousresearch/hermes-agent:0.3.14
+          imagePullPolicy: IfNotPresent
+          command:
+            - /init
+            - /opt/hermes/docker/main-wrapper.sh
+            - gateway
+            - run
+          ports:
+            - name: api
+              containerPort: 8777
+            - name: dashboard
+              containerPort: 9119
+          env:
+            - name: HERMES_HOME
+              value: /opt/data
+            - name: HERMES_WRITE_SAFE_ROOT
+              value: /opt/data
+            - name: HERMES_UID
+              value: "10000"
+            - name: HERMES_GID
+              value: "10000"
+            - name: API_SERVER_ENABLED
+              value: "true"
+            - name: API_SERVER_HOST
+              value: 0.0.0.0
+            - name: API_SERVER_PORT
+              value: "8777"
+            - name: API_SERVER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: WEBUI_SECRET_KEY
+            - name: DASHBOARD_HOST
+              value: 0.0.0.0
+            - name: DASHBOARD_PORT
+              value: "9119"
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: BYTEDANCE_API_KEY
+            - name: OPENAI_BASE_URL
+              value: https://ark.ap-southeast.bytepluses.com/api/coding/v3
+            - name: HERMES_DEFAULT_MODEL
+              value: deepseek-v4-pro-260425
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: hermes-config
+              mountPath: /opt/hermes-config
+              readOnly: true
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8777
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8777
+            initialDelaySeconds: 120
+            periodSeconds: 20
+            failureThreshold: 6
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8777
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30
+      initContainers:
+        - name: hermes-init
+          image: busybox:1.37.0
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              if [ -f /opt/data/config.yaml ]; then
+                echo "[hermes-init] Config existante, pas d'ecrasement."
+                exit 0
+              fi
+              echo "[hermes-init] Creation de la config initiale..."
+              mkdir -p /opt/data
+              cp /opt/hermes-config/config.yaml /opt/data/config.yaml
+              cp /opt/hermes-config/SOUL.md /opt/data/SOUL.md 2>/dev/null || true
+              echo "OPENAI_API_KEY=${OPENAI_API_KEY}" > /opt/data/.env
+              echo "OPENAI_BASE_URL=${OPENAI_BASE_URL}" >> /opt/data/.env
+              echo "[hermes-init] Termine."
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: BYTEDANCE_API_KEY
+            - name: OPENAI_BASE_URL
+              value: https://ark.ap-southeast.bytepluses.com/api/coding/v3
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: hermes-config
+              mountPath: /opt/hermes-config
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-data
+        - name: hermes-config
+          configMap:
+            name: hermes-config

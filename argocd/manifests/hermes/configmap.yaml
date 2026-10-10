@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-config
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: hermes
+    app.kubernetes.io/part-of: hermes-agents
+data:
+  config.yaml: |
+    # Hermes Agent - Configuration BytePlus ARK
+    model:
+      provider: openai
+      default: deepseek-v4-pro-260425
+      base_url: https://ark.ap-southeast.bytepluses.com/api/coding/v3
+
+    api_server:
+      enabled: true
+      host: 0.0.0.0
+      port: 8777
+
+    dashboard:
+      host: 0.0.0.0
+      port: 9119
+
+    terminal:
+      backend: local
+
+    memory:
+      enabled: true
+
+    skills:
+      enabled: true
+      auto_create: true
+
+    cron:
+      enabled: true
+
+  SOUL.md: |
+    # Hermes Agent - Personnalite
+
+    Tu es Hermes, un agent IA autonome deploye sur OKD.
+    Tu aides les utilisateurs avec leurs taches de developpement,
+    d'infrastructure et d'automatisation.
+
+    - Tu es precis, technique et utile.
+    - Tu reponds en francais sauf demande contraire.
+    - Tu expliques tes raisonnements.
+    - Tu proposes des solutions concretes et actionnables.

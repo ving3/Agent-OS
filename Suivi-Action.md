@@ -82,7 +82,7 @@
       - Cohérence des timeouts validée
 
 - [x] **M-04** — Taguer les images avec des versions stables ✅
-      - `hermes-agent:latest` → `nousresearch/hermes-agent:0.3.14`
+      - `hermes-agent:latest` → `nousresearch/hermes-agent:rc.9-v0.21.7-amd64`
       - `postgres:16-alpine` → `postgres:16.6-alpine3.21`
       - `redis:7-alpine` → `redis:7.4.2-alpine3.21`
       - `open-webui:main` → `ghcr.io/open-webui/open-webui:v0.11.4` (déjà tagué)

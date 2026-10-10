@@ -22,7 +22,7 @@ Déployé sur OKD SNO — [Documentation complète](docs/)
 ```
 Navigateur ──► Agentic OS Dashboard (:8686)
                    │
-                   ├──► API Hermes (:8777) → BytePlus ARK
+                   ├──► API Hermes (:8777)
                    │
                    ├──► SQLite (utilisateurs, sessions)
                    │

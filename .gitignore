@@ -1,8 +1,23 @@
+# Dossier des identifiants locaux : ne jamais committer.
+credentials/
+
+# Fichier d'environnement local de la passerelle (cles, jetons).
+# Modele committé : .env.example
+.env
+.env.backup
+
+# Filets de securite pour des fichiers oublies hors du dossier.
+*credentials*.md
+*secret*.json
+*.key
+
+# Artefacts Python
 __pycache__/
 *.pyc
 *.pyo
+
+# OS et fichiers divers
 .DS_Store
 *.db
 *.db-shm
 *.db-wal
-.env

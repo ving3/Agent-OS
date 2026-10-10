@@ -113,3 +113,45 @@ spec:
       ports:
         - port: 5000
           protocol: TCP
+---
+# NetworkPolicy: Allow build pods to reach external registries (Docker Hub, PyPI)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-builds
+  namespace: ai
+spec:
+  podSelector:
+    matchExpressions:
+      - key: openshift.io/build.name
+        operator: Exists
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+        - port: 443
+          protocol: TCP
+        - port: 80
+          protocol: TCP
+---
+# NetworkPolicy: Allow build pods to push to internal image registry
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-builds-registry
+  namespace: ai
+spec:
+  podSelector:
+    matchExpressions:
+      - key: openshift.io/build.name
+        operator: Exists
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-image-registry
+      ports:
+        - port: 5000
+          protocol: TCP

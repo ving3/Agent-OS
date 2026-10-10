@@ -219,8 +219,30 @@ Agent-OS/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   ├── okd-build.yaml                  ← ⚠️ DEPRECATED
-│   └── app/
-│       └── main.py
+│   └── app/                            ← ✅ Structure modulaire
+│       ├── __init__.py
+│       ├── main.py                     ← Point d'entree
+│       ├── config.py                   ← Configuration
+│       ├── database.py                 ← Base de donnees SQLite
+│       ├── hermes_client.py            ← Client API Hermes
+│       ├── common/                     ← Code partage
+│       │   ├── __init__.py
+│       │   ├── http_base.py            ← Classe HTTP de base
+│       │   └── templates.py            ← Pages login/signup
+│       ├── dashboard/                  ← Code du dashboard
+│       │   ├── __init__.py
+│       │   ├── router.py               ← Routeur principal (AgenticOSHandler)
+│       │   └── templates.py            ← Templates dashboard + admin
+│       └── panels/                     ← Panneaux du dashboard
+│           ├── __init__.py
+│           ├── overview.py             ← Panneau Dashboard
+│           ├── canvas.py               ← Panneau Canvas (terminaux)
+│           ├── graph.py                ← Panneau Graphe
+│           ├── chat.py                 ← Panneau Chat Agents
+│           ├── memory.py               ← Panneau Memoire
+│           ├── skills.py               ← Panneau Skills
+│           ├── kanban.py               ← Panneau Kanban
+│           └── admin.py                ← Panneau Administration
 ├── argocd/                             ← ✅ GitOps — Structure complète
 │   ├── root-app.yaml
 │   ├── apps/                           ← 6 Applications ArgoCD

@@ -243,7 +243,8 @@ Cette action est irreversible. Tapez <strong id="da-agent-name-confirm" style="c
 
 </div></div></div>
 <script>
-var curAgent=null,agents={},skills=[],tasks=JSON.parse(localStorage.getItem('aos_tasks')||'[]'),chatHist={},canvasHist={};
+var curAgent=null,agents={},skills=[],tasks=[],chatHist={},canvasHist={};
+try{tasks=JSON.parse(localStorage.getItem('aos_tasks')||'[]');}catch(e){tasks=[];}
 var role='{{USER_ROLE}}';if(role==='admin')document.getElementById('admin-btn').style.display='flex';
 
 async function loadStatus(){var r=await fetch('/api/status'),d=await r.json();
@@ -363,7 +364,7 @@ var a=prompt('Agent responsable (architect,senior-dev,code-reviewer,qa-engineer,
 tasks.push({id:Date.now(),title:t,agent:a||'devops',status:'todo',created:new Date().toISOString()});saveTasks();}
 function moveTask(id,s){var t=tasks.find(function(x){return x.id===id});if(t){t.status=s;saveTasks();}}
 function deleteTask(id){tasks=tasks.filter(function(t){return t.id!==id});saveTasks();}
-function saveTasks(){localStorage.setItem('aos_tasks',JSON.stringify(tasks));renderKanban();renderGraph();}
+function saveTasks(){try{localStorage.setItem('aos_tasks',JSON.stringify(tasks));}catch(e){}renderKanban();renderGraph();}
 function renderKanban(){var todo=tasks.filter(function(t){return t.status==='todo'}),prog=tasks.filter(function(t){return t.status==='progress'}),done=tasks.filter(function(t){return t.status==='done'});
 document.getElementById('todo-count').textContent=todo.length;document.getElementById('progress-count').textContent=prog.length;document.getElementById('done-count').textContent=done.length;
 document.getElementById('kanban-todo').innerHTML=(todo.length?todo.map(function(t){return '<div class="kanban-item" ondblclick="moveTask('+t.id+',\'progress\')"><div class="ki-agent">'+(t.agent||'devops')+'</div><div class="ki-title">'+esc(t.title)+'</div><div class="ki-meta">'+new Date(t.created).toLocaleDateString()+' <span style="float:right;cursor:pointer;color:var(--red)" onclick="event.stopPropagation();deleteTask('+t.id+')">✕</span></div></div>'}).join(''):'<div style="color:var(--text3);font-size:11px">Aucune tache</div>');

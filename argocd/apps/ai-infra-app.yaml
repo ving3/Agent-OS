@@ -21,8 +21,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-  ignoreDifferences:
-    - group: v1
-      kind: PersistentVolume
-      jsonPointers:
-        - /spec/claimRef

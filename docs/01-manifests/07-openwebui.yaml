@@ -1,0 +1,120 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openwebui
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: openwebui
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  selector:
+    app.kubernetes.io/name: openwebui
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: openwebui
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: openwebui
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  host: openwebui.apps.okdsnoapps.vmapps.home
+  to:
+    kind: Service
+    name: openwebui
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openwebui
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: openwebui
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: openwebui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: openwebui
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: openwebui
+          image: ghcr.io/open-webui/open-webui:v0.11.4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            # --- Backend LLM : Hermes Agent (API OpenAI-compatible) ---
+            - name: OPENAI_API_BASE_URL
+              value: http://hermes:8777/v1
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: WEBUI_SECRET_KEY
+            # --- Secret de session ---
+            - name: WEBUI_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: WEBUI_SECRET_KEY
+            # --- Base de donnees PostgreSQL ---
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: DATABASE_URL
+            # --- Modele par defaut ---
+            - name: DEFAULT_MODELS
+              value: hermes-agent
+            # --- Desactiver Ollama (non utilise) ---
+            - name: ENABLE_OLLAMA_API
+              value: "false"
+          volumeMounts:
+            - name: data
+              mountPath: /app/backend/data
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 90
+            periodSeconds: 20
+            failureThreshold: 6
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: openwebui-data

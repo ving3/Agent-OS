@@ -1,0 +1,38 @@
+# BuildConfig OKD pour Agentic OS Dashboard
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: agents-os
+  labels:
+    app.kubernetes.io/name: agents-os
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: agents-os
+  labels:
+    app.kubernetes.io/name: agents-os
+spec:
+  runPolicy: Serial
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: agents-os:latest
+  resources:
+    limits:
+      cpu: "1"
+      memory: 2Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi

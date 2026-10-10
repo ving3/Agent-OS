@@ -24,7 +24,7 @@ spec:
         runAsUser: 0
       containers:
         - name: hermes
-          image: nousresearch/hermes-agent:0.3.14
+          image: nousresearch/hermes-agent:rc.9-v0.21.7-amd64
           imagePullPolicy: IfNotPresent
           command:
             - /init

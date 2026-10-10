@@ -236,13 +236,26 @@ Agent-OS/
 │       └── panels/                     ← Panneaux du dashboard
 │           ├── __init__.py
 │           ├── overview.py             ← Panneau Dashboard
-│           ├── canvas.py               ← Panneau Canvas (terminaux)
-│           ├── graph.py                ← Panneau Graphe
-│           ├── chat.py                 ← Panneau Chat Agents
-│           ├── memory.py               ← Panneau Memoire
-│           ├── skills.py               ← Panneau Skills
-│           ├── kanban.py               ← Panneau Kanban
-│           └── admin.py                ← Panneau Administration
+│           ├── overview/               ← Routes: /api/status, /api/profiles, /v1/models
+│           │   ├── __init__.py
+│           │   └── handler.py          ← handle_status, handle_profiles, handle_models
+│           ├── canvas/                 ← Panneau Canvas (terminaux — client only)
+│           │   └── __init__.py
+│           ├── graph/                  ← Panneau Graphe (client only)
+│           │   └── __init__.py
+│           ├── chat/                   ← Routes: POST /v1/chat/completions, /api/chat
+│           │   ├── __init__.py
+│           │   └── handler.py          ← handle_chat_completions, handle_chat
+│           ├── memory/                 ← Panneau Memoire (client only)
+│           │   └── __init__.py
+│           ├── skills/                 ← Route: /api/skills
+│           │   ├── __init__.py
+│           │   └── handler.py          ← handle_skills
+│           ├── kanban/                 ← Panneau Kanban (client only)
+│           │   └── __init__.py
+│           └── admin/                  ← Routes: /api/users, /api/admin/user/*, /api/admin/agent/*
+│               ├── __init__.py
+│               └── handler.py          ← 8 fonctions handle_* (CRUD users + agents)
 ├── argocd/                             ← ✅ GitOps — Structure complète
 │   ├── root-app.yaml
 │   ├── apps/                           ← 6 Applications ArgoCD

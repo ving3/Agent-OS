@@ -7,6 +7,7 @@ import { renderShell } from "./ui/shell";
 import { renderDashboard } from "./components/dashboard";
 import { renderAdmin } from "./components/admin";
 import { renderChat } from "./components/chat";
+import { renderSkills } from "./components/skills";
 import type { PanelName } from "./types";
 
 // -- Bootstrap ------------------------------------------------------------------
@@ -39,7 +40,7 @@ function init(): void {
         content.innerHTML = renderPlaceholder("Mémoire", "🧠 Explorateur de mémoire — À implémenter");
         break;
       case "skills":
-        content.innerHTML = renderPlaceholder("Skills", "🧩 Catalogue de compétences — À implémenter");
+        renderSkills(content);
         break;
       case "kanban":
         content.innerHTML = renderPlaceholder("Kanban", "📋 Tableau de tâches — À implémenter");

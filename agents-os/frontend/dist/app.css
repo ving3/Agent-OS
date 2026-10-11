@@ -809,6 +809,90 @@ body {
 .aos-chat-textarea:focus { border-color: var(--aos-blue); }
 .aos-chat-input-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
+/* -- Skills panel ----------------------------------------------------------- */
+
+.aos-skills-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.aos-skills-title { font-size: 16px; font-weight: 600; }
+.aos-skills-actions { display: flex; align-items: center; gap: 12px; }
+.aos-skills-search { width: 240px; }
+.aos-skills-count { font-size: 12px; color: var(--aos-text2); white-space: nowrap; }
+
+.aos-skills-detail {
+  background: var(--aos-surface);
+  border: 1px solid var(--aos-blue);
+  border-radius: var(--aos-radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.aos-skills-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--aos-border);
+  background: var(--aos-surface2);
+}
+.aos-skills-detail-name { font-size: 15px; font-weight: 600; }
+.aos-skills-detail-body { padding: 20px; }
+.aos-skills-detail-section { margin-bottom: 16px; }
+.aos-skills-detail-section:last-child { margin-bottom: 0; }
+.aos-skills-detail-section label {
+  font-size: 10px;
+  color: var(--aos-text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 4px;
+}
+.aos-skills-detail-section code {
+  background: var(--aos-bg);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'SF Mono', monospace;
+}
+.aos-skills-detail-section p { font-size: 13px; color: var(--aos-text2); }
+
+.aos-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.aos-skill-card {
+  background: var(--aos-surface);
+  border: 1px solid var(--aos-border);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--aos-transition);
+}
+.aos-skill-card:hover { border-color: var(--aos-blue); transform: translateY(-1px); }
+.aos-skill-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.aos-skill-card-icon { font-size: 24px; flex-shrink: 0; }
+.aos-skill-card-name { font-size: 13px; font-weight: 600; }
+.aos-skill-card-path { font-size: 10px; color: var(--aos-text3); margin-top: 2px; font-family: monospace; }
+.aos-skill-card-status { margin-left: auto; flex-shrink: 0; }
+.aos-status-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 500;
+  background: rgba(63,185,80,0.1);
+  color: var(--aos-green);
+}
+.aos-skill-card-body { padding-left: 36px; }
+.aos-skill-card-desc { font-size: 11px; color: var(--aos-text2); }
+
 /* -- Responsive -------------------------------------------------------------- */
 
 @media (max-width: 768px) {
@@ -823,4 +907,6 @@ body {
   .aos-form-grid { grid-template-columns: 1fr; }
   .aos-form-grid-2col { grid-template-columns: 1fr; }
   .aos-chat-msg { max-width: 95%; }
+  .aos-skills-grid { grid-template-columns: 1fr; }
+  .aos-skills-search { width: 100%; }
 }

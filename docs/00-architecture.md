@@ -1,3 +1,11 @@
+# ⚠️ DEPRECATED — Remplacé par docs/00-architecture-v3.md
+
+> Ce document décrit l'architecture v1/v2 (monolithe Python).  
+> Pour l'architecture v3 (FastAPI + TypeScript), voir `docs/00-architecture-v3.md`.  
+> Conservé pour référence historique uniquement.
+
+---
+
 # Architecture — Hermes Agent sur OKD SNO
 
 Cluster : `okdsnoapps.vmapps.home` (OKD 4.22 SNO, 192.168.1.62)

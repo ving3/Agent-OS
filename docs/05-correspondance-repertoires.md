@@ -1,4 +1,4 @@
-# Correspondance des répertoires — Hermes Agent sur OKD
+# ⚠️ DEPRECATED — Voir docs/00-architecture-v3.md §4.2 — Hermes Agent sur OKD
 
 Architecture : PC Fedora Hôte → VM okdsnoapps (OKD SNO) → Conteneur Hermes Agent
 

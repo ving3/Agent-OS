@@ -1,3 +1,5 @@
+# ⚠️ DEPRECATED — Voir docs/00-architecture-v3.md et Suivi-Action.md
+
 # Procédure d'installation — Hermes Agent + OpenWebUI sur OKD
 
 Cluster : `okdsnoapps.vmapps.home` (OKD 4.22 SNO) | Namespace : `ai`

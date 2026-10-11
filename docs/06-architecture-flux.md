@@ -1,3 +1,9 @@
+# ⚠️ DEPRECATED — Remplacé par docs/00-architecture-v3.md
+
+> Conservé pour référence historique uniquement.
+
+---
+
 # Architecture et flux de communication — Hermes Agent + Agentic OS
 
 Cluster : `okdsnoapps.vmapps.home` (OKD 4.22 SNO) | Namespace : `ai`

@@ -1,3 +1,5 @@
+# ⚠️ DEPRECATED — Voir docs/00-architecture-v3.md
+
 # Procédure de mise à jour — Hermes Agent + OpenWebUI
 
 ---

@@ -21,3 +21,9 @@ __pycache__/
 *.db
 *.db-shm
 *.db-wal
+
+# Frontend build artifacts
+agents-os/frontend/node_modules/
+agents-os/frontend/dist/app.js
+agents-os/frontend/dist/app.js.map
+agents-os/frontend/package-lock.json

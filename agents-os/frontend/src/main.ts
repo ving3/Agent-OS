@@ -11,6 +11,7 @@ import { renderSkills } from "./components/skills";
 import { renderMemory } from "./components/memory";
 import { renderCanvas } from "./components/canvas";
 import { renderGraph } from "./components/graph";
+import { renderKanban } from "./components/kanban";
 import type { PanelName } from "./types";
 
 // -- Bootstrap ------------------------------------------------------------------
@@ -46,7 +47,7 @@ function init(): void {
         renderSkills(content);
         break;
       case "kanban":
-        content.innerHTML = renderPlaceholder("Kanban", "📋 Tableau de tâches — À implémenter");
+        renderKanban(content);
         break;
       case "admin":
         renderAdmin(content);

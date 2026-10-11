@@ -1059,6 +1059,43 @@ body {
 
 .aos-graph-node { transition: opacity 0.3s; }
 
+/* -- Kanban panel ----------------------------------------------------------- */
+
+.aos-kanban { display: flex; flex-direction: column; height: calc(100vh - 120px); }
+.aos-kanban-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.aos-kanban-title { font-size: 16px; font-weight: 600; }
+.aos-kanban-actions { display: flex; gap: 8px; }
+
+.aos-kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; flex: 1; overflow: hidden; }
+.aos-kanban-col {
+  background: var(--aos-surface); border: 1px solid var(--aos-border);
+  border-radius: var(--aos-radius); display: flex; flex-direction: column;
+  overflow: hidden; transition: border-color var(--aos-transition);
+}
+.aos-kanban-col-over { border-color: var(--aos-blue); background: rgba(88,166,255,0.03); }
+.aos-kanban-col-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--aos-border);
+  font-size: 12px; font-weight: 600; user-select: none;
+}
+.aos-kanban-col-count { font-size: 10px; background: var(--aos-border); padding: 2px 8px; border-radius: 10px; }
+.aos-kanban-col-body { flex: 1; overflow-y: auto; padding: 8px; }
+.aos-kanban-empty { text-align: center; padding: 24px; color: var(--aos-text3); font-size: 12px; }
+
+.aos-kanban-card {
+  background: var(--aos-surface2); border: 1px solid var(--aos-border);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  cursor: grab; transition: all var(--aos-transition);
+}
+.aos-kanban-card:hover { border-color: var(--aos-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.aos-kanban-card:active { cursor: grabbing; }
+.aos-kanban-card-dragging { opacity: 0.4; }
+.aos-kanban-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.aos-kanban-card-agent { font-size: 10px; color: var(--aos-blue); font-weight: 500; }
+.aos-kanban-card-actions { display: flex; gap: 4px; }
+.aos-kanban-card-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.aos-kanban-card-meta { font-size: 10px; color: var(--aos-text3); }
+
 /* -- Responsive -------------------------------------------------------------- */
 
 @media (max-width: 768px) {
@@ -1079,4 +1116,5 @@ body {
   .aos-canvas-toolbar { flex-direction: column; align-items: flex-start; }
   .aos-graph-layout { flex-direction: column; }
   .aos-graph-panel { width: 100%; }
+  .aos-kanban-board { grid-template-columns: 1fr; }
 }

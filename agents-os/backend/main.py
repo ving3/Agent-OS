@@ -45,6 +45,7 @@ def health():
 
 @app.get("/login")
 @app.get("/signup")
+@app.get("/")
 @app.get("/dashboard")
 @app.get("/admin")
 def serve_spa(request: Request, response: Response):

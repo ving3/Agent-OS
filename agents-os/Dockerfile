@@ -37,4 +37,5 @@ RUN cd frontend && npm run build
 
 EXPOSE 8686
 
-CMD ["python", "-m", "backend.main"]
+WORKDIR /opt/app/backend
+CMD ["python", "main.py"]

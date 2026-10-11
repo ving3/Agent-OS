@@ -5,6 +5,7 @@
 import { store } from "./store";
 import { renderShell } from "./ui/shell";
 import { renderDashboard } from "./components/dashboard";
+import { renderAdmin } from "./components/admin";
 import type { PanelName } from "./types";
 
 // -- Bootstrap ------------------------------------------------------------------
@@ -43,7 +44,7 @@ function init(): void {
         content.innerHTML = renderPlaceholder("Kanban", "📋 Tableau de tâches — À implémenter");
         break;
       case "admin":
-        content.innerHTML = renderPlaceholder("Administration", "⚙️ Gestion des utilisateurs — À implémenter");
+        renderAdmin(content);
         break;
     }
   });

@@ -236,13 +236,13 @@ argocd/apps/agents-os-app.yaml
 | # | Panel | Route | Composant | Statut |
 |---|-------|-------|-----------|--------|
 | 1 | Dashboard | `overview` | `components/dashboard.ts` | ✅ Implémenté |
-| 2 | Administration | `admin` | `components/admin.ts` | ⏳ À implémenter |
-| 3 | Chat Agents | `chat` | `components/chat.ts` | ⏳ À implémenter |
-| 4 | Skills | `skills` | `components/skills.ts` | ⏳ À implémenter |
-| 5 | Mémoire | `memory` | `components/memory.ts` | ⏳ À implémenter |
-| 6 | Canvas | `canvas` | `components/canvas.ts` | ⏳ À implémenter |
-| 7 | Graphe | `graph` | `components/graph.ts` | ⏳ À implémenter |
-| 8 | Kanban | `kanban` | `components/kanban.ts` | ⏳ À implémenter |
+| 2 | Administration | `admin` | `components/admin.ts` | ✅ Implémenté |
+| 3 | Chat Agents | `chat` | `components/chat.ts` | ✅ Implémenté |
+| 4 | Skills | `skills` | `components/skills.ts` | ✅ Implémenté |
+| 5 | Mémoire | `memory` | `components/memory.ts` | ✅ Implémenté |
+| 6 | Canvas | `canvas` | `components/canvas.ts` | ✅ Implémenté |
+| 7 | Graphe | `graph` | `components/graph.ts` | ✅ Implémenté |
+| 8 | Kanban | `kanban` | `components/kanban.ts` | ✅ Implémenté |
 
 ## 7. Flux de données inter-panels
 

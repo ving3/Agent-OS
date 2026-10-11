@@ -9,6 +9,7 @@ import { renderAdmin } from "./components/admin";
 import { renderChat } from "./components/chat";
 import { renderSkills } from "./components/skills";
 import { renderMemory } from "./components/memory";
+import { renderCanvas } from "./components/canvas";
 import type { PanelName } from "./types";
 
 // -- Bootstrap ------------------------------------------------------------------
@@ -29,7 +30,7 @@ function init(): void {
         renderDashboard(content);
         break;
       case "canvas":
-        content.innerHTML = renderPlaceholder("Canvas", "🖥️ Terminaux des agents — À implémenter");
+        renderCanvas(content);
         break;
       case "graph":
         content.innerHTML = renderPlaceholder("Graphe", "🔗 Visualisation des dépendances — À implémenter");

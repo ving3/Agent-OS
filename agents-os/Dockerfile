@@ -32,7 +32,7 @@ COPY frontend/package.json frontend/package-lock.json* frontend/tsconfig.json fr
 RUN cd frontend && npm install --production=false
 
 COPY frontend/src/ ./frontend/src/
-COPY frontend/dist/index.html ./frontend/dist/
+COPY frontend/dist/ ./frontend/dist/
 RUN cd frontend && npm run build
 
 EXPOSE 8686

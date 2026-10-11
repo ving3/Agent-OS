@@ -6,6 +6,7 @@ import { store } from "./store";
 import { renderShell } from "./ui/shell";
 import { renderDashboard } from "./components/dashboard";
 import { renderAdmin } from "./components/admin";
+import { renderChat } from "./components/chat";
 import type { PanelName } from "./types";
 
 // -- Bootstrap ------------------------------------------------------------------
@@ -32,7 +33,7 @@ function init(): void {
         content.innerHTML = renderPlaceholder("Graphe", "🔗 Visualisation des dépendances — À implémenter");
         break;
       case "chat":
-        content.innerHTML = renderPlaceholder("Chat Agents", "💬 Interface de chat avancée — À implémenter");
+        renderChat(content);
         break;
       case "memory":
         content.innerHTML = renderPlaceholder("Mémoire", "🧠 Explorateur de mémoire — À implémenter");

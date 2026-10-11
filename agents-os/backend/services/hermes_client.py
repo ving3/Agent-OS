@@ -78,20 +78,20 @@ def list_profiles() -> list[str]:
     return []
 
 
-def create_agent_profile(name: str, description: str) -> bool:
+def _kubectl_exec(command: str) -> bool:
+    """Execute une commande dans le pod Hermes via l'API Kubernetes avec le token SA."""
+    token_path = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    ca_path = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    server = "https://kubernetes.default.svc"
     try:
+        token = open(token_path).read().strip()
         result = subprocess.run(
-            ["kubectl", "exec", "-n", "ai", "deployment/hermes", "--",
-             "sh", "-c",
-             f"mkdir -p /opt/data/profiles/{name} && "
-             f"cat > /opt/data/profiles/{name}/SOUL.md << 'SOUL'\n"
-             f"# Agent {name}\n\n{description}\n\n"
-             f"## Role\n\nAgent créé depuis Agentic OS Dashboard.\n"
-             f"SOUL\n"
-             f"cat > /opt/data/profiles/{name}/config.yaml << 'CFG'\n"
-             f"model:\n  provider: openai\n  default: deepseek-v4-pro-260425\n"
-             f"  base_url: https://ark.ap-southeast.bytepluses.com/api/coding/v3\n"
-             f"CFG\n"],
+            ["kubectl",
+             "--server", server,
+             "--token", token,
+             "--certificate-authority", ca_path,
+             "exec", "-n", "ai", "deployment/hermes", "--",
+             "sh", "-c", command],
             capture_output=True, text=True, timeout=30,
         )
         return result.returncode == 0
@@ -99,13 +99,20 @@ def create_agent_profile(name: str, description: str) -> bool:
         return False
 
 
+def create_agent_profile(name: str, description: str) -> bool:
+    cmd = (
+        f"mkdir -p /opt/data/profiles/{name} && "
+        f"cat > /opt/data/profiles/{name}/SOUL.md << 'SOUL'\n"
+        f"# Agent {name}\n\n{description}\n\n"
+        f"## Role\n\nAgent cree depuis Agentic OS Dashboard.\n"
+        f"SOUL\n"
+        f"cat > /opt/data/profiles/{name}/config.yaml << 'CFG'\n"
+        f"model:\n  provider: openai\n  default: deepseek-v4-pro-260425\n"
+        f"  base_url: https://ark.ap-southeast.bytepluses.com/api/coding/v3\n"
+        f"CFG"
+    )
+    return _kubectl_exec(cmd)
+
+
 def delete_agent_profile(name: str) -> bool:
-    try:
-        result = subprocess.run(
-            ["kubectl", "exec", "-n", "ai", "deployment/hermes", "--",
-             "rm", "-rf", f"/opt/data/profiles/{name}"],
-            capture_output=True, text=True, timeout=15,
-        )
-        return result.returncode == 0
-    except Exception:
-        return False
+    return _kubectl_exec(f"rm -rf /opt/data/profiles/{name}")

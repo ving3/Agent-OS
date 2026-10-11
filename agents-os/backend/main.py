@@ -71,7 +71,7 @@ def logout(response: Response):
 # ── Fichiers statiques (CSS, JS, assets) ───────────────────────────────────────
 
 if os.path.isdir(STATIC_DIR):
-    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 # ── Point d'entrée CLI ─────────────────────────────────────────────────────────

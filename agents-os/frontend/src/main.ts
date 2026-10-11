@@ -10,6 +10,7 @@ import { renderChat } from "./components/chat";
 import { renderSkills } from "./components/skills";
 import { renderMemory } from "./components/memory";
 import { renderCanvas } from "./components/canvas";
+import { renderGraph } from "./components/graph";
 import type { PanelName } from "./types";
 
 // -- Bootstrap ------------------------------------------------------------------
@@ -33,7 +34,7 @@ function init(): void {
         renderCanvas(content);
         break;
       case "graph":
-        content.innerHTML = renderPlaceholder("Graphe", "🔗 Visualisation des dépendances — À implémenter");
+        renderGraph(content);
         break;
       case "chat":
         renderChat(content);

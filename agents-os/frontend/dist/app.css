@@ -1016,6 +1016,49 @@ body {
 }
 .aos-cv-editor-bar { display: flex; gap: 4px; margin-top: 6px; }
 
+/* -- Graph panel ------------------------------------------------------------ */
+
+.aos-graph { display: flex; flex-direction: column; }
+.aos-graph-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.aos-graph-title { font-size: 16px; font-weight: 600; }
+.aos-graph-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.aos-graph-search { width: 200px; }
+
+.aos-graph-layout { display: flex; gap: 16px; }
+.aos-graph-canvas {
+  flex: 1; min-height: 500px;
+  background: var(--aos-bg);
+  border: 1px solid var(--aos-border);
+  border-radius: var(--aos-radius);
+  background-image: radial-gradient(circle, var(--aos-border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.aos-graph-panel {
+  width: 280px; min-width: 280px;
+  background: var(--aos-surface);
+  border: 1px solid var(--aos-border);
+  border-radius: var(--aos-radius);
+  overflow: hidden;
+}
+.aos-graph-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 1px solid var(--aos-border);
+  font-weight: 600; font-size: 14px;
+}
+.aos-graph-panel-body { padding: 16px; overflow-y: auto; max-height: 450px; }
+.aos-gp-field { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--aos-border); font-size: 12px; }
+.aos-gp-field:last-child { border-bottom: none; }
+.aos-gp-field label { color: var(--aos-text3); text-transform: uppercase; font-size: 10px; }
+.aos-gp-field span { color: var(--aos-text); }
+.aos-gp-section { margin-top: 12px; }
+.aos-gp-section label { font-size: 10px; color: var(--aos-text3); text-transform: uppercase; display: block; margin-bottom: 6px; }
+.aos-gp-conn { font-size: 12px; padding: 4px 0; }
+.aos-gp-conn-label { font-size: 10px; color: var(--aos-text3); margin-left: 8px; }
+.aos-gp-connections { max-height: 200px; overflow-y: auto; }
+
+.aos-graph-node { transition: opacity 0.3s; }
+
 /* -- Responsive -------------------------------------------------------------- */
 
 @media (max-width: 768px) {
@@ -1034,4 +1077,6 @@ body {
   .aos-skills-search { width: 100%; }
   .aos-memory-search { width: 100%; }
   .aos-canvas-toolbar { flex-direction: column; align-items: flex-start; }
+  .aos-graph-layout { flex-direction: column; }
+  .aos-graph-panel { width: 100%; }
 }

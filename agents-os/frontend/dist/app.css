@@ -27,8 +27,10 @@ body {
   background: var(--aos-bg);
   color: var(--aos-text);
   min-height: 100vh;
+  margin: 0;
   -webkit-font-smoothing: antialiased;
 }
+#app { min-height: 100vh; }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--aos-bg); }
@@ -1104,7 +1106,6 @@ body {
   align-items: center;
   justify-content: center;
   background: var(--aos-bg);
-  padding: 20px;
 }
 .aos-auth-card {
   background: var(--aos-surface);

@@ -1,6 +1,6 @@
 # Anomalies & Solutions — Index
 
-> Index des 10 anomalies rencontrées lors de la migration GitOps du projet `ai`
+> Index des 11 anomalies rencontrées lors de la migration GitOps du projet `ai`
 > sur `okdsnoapps.vmapps.home` vers ArgoCD.
 > Date : 2026-10-10
 
@@ -20,6 +20,17 @@
 | 8 | Quoting PowerShell/WSL | Différence de syntaxe entre shells | Scripts fichiers au lieu d'inline | Gênant | [Détails](anomalie-08-quoting-powershell-wsl.md) |
 | 9 | Ancienne image agents-os | Code modifié sans rebuild | Nouveau build Binary (#17) | Fonctionnel | [Détails](anomalie-09-agents-os-restructuration.md) |
 | 10 | Dashboard : localStorage non protégé | `localStorage.getItem()` sans try/catch plante tout le JS | try/catch autour des accès localStorage | Bloquant | [Détails](anomalie-10-dashboard-localstorage.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
+| 11 | Déploiement v3 : WORKDIR + CSS manquant | `python -m backend.main` + import `from config` incompatible | WORKDIR + COPY dist/ | Bloquant | [Détails](anomalie-11-deploiement-v3.md) |
 
 ---
 
@@ -59,8 +70,8 @@ graph TD
 
 ## Statistiques
 
-- **Total anomalies** : 10
-- **Bloquantes** : 7
+- **Total anomalies** : 11
+- **Bloquantes** : 8
 - **Mineures** : 1
 - **Gênantes** : 1
 - **Fonctionnelles** : 1 (résolue après rebuild)

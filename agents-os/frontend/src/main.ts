@@ -8,6 +8,7 @@ import { renderDashboard } from "./components/dashboard";
 import { renderAdmin } from "./components/admin";
 import { renderChat } from "./components/chat";
 import { renderSkills } from "./components/skills";
+import { renderMemory } from "./components/memory";
 import type { PanelName } from "./types";
 
 // -- Bootstrap ------------------------------------------------------------------
@@ -37,7 +38,7 @@ function init(): void {
         renderChat(content);
         break;
       case "memory":
-        content.innerHTML = renderPlaceholder("Mémoire", "🧠 Explorateur de mémoire — À implémenter");
+        renderMemory(content);
         break;
       case "skills":
         renderSkills(content);

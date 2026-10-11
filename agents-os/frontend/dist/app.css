@@ -893,6 +893,72 @@ body {
 .aos-skill-card-body { padding-left: 36px; }
 .aos-skill-card-desc { font-size: 11px; color: var(--aos-text2); }
 
+/* -- Memory panel ----------------------------------------------------------- */
+
+.aos-memory-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.aos-memory-title { font-size: 16px; font-weight: 600; }
+.aos-memory-actions { display: flex; align-items: center; gap: 12px; }
+.aos-memory-search { width: 280px; }
+.aos-memory-count { font-size: 12px; color: var(--aos-text2); white-space: nowrap; }
+
+.aos-memory-editor {
+  background: var(--aos-surface);
+  border: 1px solid var(--aos-blue);
+  border-radius: var(--aos-radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.aos-memory-editor-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--aos-border);
+  background: var(--aos-surface2); font-weight: 600;
+}
+.aos-memory-editor-body { padding: 20px; }
+.aos-memory-content { font-size: 13px; line-height: 1.7; }
+.aos-memory-content h3 { font-size: 16px; color: var(--aos-blue); margin: 16px 0 8px; }
+.aos-memory-content h4 { font-size: 14px; margin: 12px 0 6px; }
+.aos-memory-textarea { width: 100%; min-height: 200px; font-size: 13px; font-family: inherit; line-height: 1.6; }
+.aos-memory-editor-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+.aos-memory-results {
+  background: var(--aos-surface);
+  border: 1px solid var(--aos-border);
+  border-radius: var(--aos-radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.aos-memory-results-header {
+  padding: 12px 20px; border-bottom: 1px solid var(--aos-border);
+  font-size: 12px; font-weight: 600; color: var(--aos-text2);
+}
+.aos-memory-hit { padding: 12px 20px; border-bottom: 1px solid var(--aos-border); cursor: pointer; }
+.aos-memory-hit:last-child { border-bottom: none; }
+.aos-memory-hit:hover { background: var(--aos-surface2); }
+.aos-memory-hit-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.aos-memory-hit-agent { font-size: 12px; font-weight: 600; color: var(--aos-blue); }
+.aos-memory-hit-score { font-size: 10px; color: var(--aos-text3); }
+.aos-memory-hit-snippet { font-size: 12px; color: var(--aos-text2); }
+.aos-memory-hit-snippet mark { background: rgba(88,166,255,0.2); color: var(--aos-blue); padding: 0 2px; border-radius: 2px; }
+
+.aos-memory-list { display: flex; flex-direction: column; gap: 8px; }
+.aos-memory-card {
+  background: var(--aos-surface); border: 1px solid var(--aos-border);
+  border-radius: var(--aos-radius); overflow: hidden;
+  cursor: pointer; transition: border-color var(--aos-transition);
+}
+.aos-memory-card:hover { border-color: var(--aos-blue); }
+.aos-memory-card-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px; border-bottom: 1px solid var(--aos-border);
+}
+.aos-memory-card-emoji { font-size: 20px; }
+.aos-memory-card-name { font-size: 13px; font-weight: 600; }
+.aos-memory-card-meta { font-size: 11px; color: var(--aos-text3); }
+.aos-memory-card-preview {
+  padding: 12px 20px; font-size: 12px; color: var(--aos-text2);
+  line-height: 1.5; white-space: pre-wrap;
+}
+
 /* -- Responsive -------------------------------------------------------------- */
 
 @media (max-width: 768px) {
@@ -909,4 +975,5 @@ body {
   .aos-chat-msg { max-width: 95%; }
   .aos-skills-grid { grid-template-columns: 1fr; }
   .aos-skills-search { width: 100%; }
+  .aos-memory-search { width: 100%; }
 }

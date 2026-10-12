@@ -8,11 +8,11 @@ metadata:
     app.kubernetes.io/part-of: hermes-agents
 data:
   config.yaml: |
-    # Hermes Agent - Configuration BytePlus ARK
+    # Hermes Agent - Configuration DeepSeek
     model:
       provider: openai
-      default: deepseek-v4-pro-260425
-      base_url: https://ark.ap-southeast.bytepluses.com/api/coding/v3
+      default: deepseek-chat
+      base_url: https://api.deepseek.com
 
     api_server:
       enabled: true

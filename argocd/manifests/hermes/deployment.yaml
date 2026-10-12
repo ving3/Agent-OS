@@ -64,11 +64,11 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: ai-secrets
-                  key: BYTEDANCE_API_KEY
+                  key: DEEPSEEK_API_KEY
             - name: OPENAI_BASE_URL
-              value: https://ark.ap-southeast.bytepluses.com/api/coding/v3
+              value: https://api.deepseek.com
             - name: HERMES_DEFAULT_MODEL
-              value: deepseek-v4-pro-260425
+              value: deepseek-chat
           volumeMounts:
             - name: data
               mountPath: /opt/data
@@ -127,9 +127,9 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: ai-secrets
-                  key: BYTEDANCE_API_KEY
+                  key: DEEPSEEK_API_KEY
             - name: OPENAI_BASE_URL
-              value: https://ark.ap-southeast.bytepluses.com/api/coding/v3
+              value: https://api.deepseek.com
           volumeMounts:
             - name: data
               mountPath: /opt/data

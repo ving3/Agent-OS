@@ -9,11 +9,8 @@ metadata:
 spec:
   runPolicy: Serial
   source:
-    type: Git
-    git:
-      uri: https://github.com/ving3/Agent-OS.git
-      ref: main
-    contextDir: agents-os
+    type: Binary
+    binary: {}
   strategy:
     type: Docker
     dockerStrategy:

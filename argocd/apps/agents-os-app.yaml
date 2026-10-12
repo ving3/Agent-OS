@@ -20,3 +20,10 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+  # Le trigger ImageStream OpenShift resout :latest -> @sha256:...
+  # Sans cette regle, ArgoCD selfHeal patche en boucle et recree le pod.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/template/spec/containers/0/image

@@ -11,7 +11,7 @@ data:
     # Hermes Agent - Configuration DeepSeek
     model:
       provider: openai
-      default: deepseek-chat
+      default: deepseek-v4-pro
       base_url: https://api.deepseek.com
 
     api_server:

@@ -62,3 +62,19 @@ spec:
   resources:
     requests:
       storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agents-os-data
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: agents-os
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  storageClassName: ai-local
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -78,4 +78,5 @@ spec:
             claimName: hermes-data
             readOnly: true
         - name: agents-os-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: agents-os-data

@@ -114,7 +114,29 @@ spec:
         - port: 5000
           protocol: TCP
 ---
-# NetworkPolicy: Allow build pods to reach external registries (Docker Hub, PyPI)
+# NetworkPolicy: Allow agents-os pod to reach K8s API server + Hermes pod
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-agents-os
+  namespace: ai
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: agents-os
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/8
+        - ipBlock:
+            cidr: 172.30.0.0/16
+      ports:
+        - port: 443
+          protocol: TCP
+        - port: 6443
+          protocol: TCP
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

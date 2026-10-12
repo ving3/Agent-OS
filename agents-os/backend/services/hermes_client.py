@@ -78,21 +78,50 @@ def list_profiles() -> list[str]:
     return []
 
 
-def _kubectl_exec(command: str) -> bool:
-    """Execute une commande dans le pod Hermes via l'API Kubernetes avec le token SA."""
+def _k8s_exec(command: str) -> bool:
+    """Execute une commande dans le pod Hermes via l'API Kubernetes."""
+    import urllib.request
+    import ssl
+    import json as _json
+    import base64
+
     token_path = "/var/run/secrets/kubernetes.io/serviceaccount/token"
     ca_path = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-    server = "https://kubernetes.default.svc"
+    namespace = "ai"
+    pod_name = None
+
+    # Trouver le nom du pod Hermes
     try:
         token = open(token_path).read().strip()
+        ctx = ssl.create_default_context(cafile=ca_path)
+        req = urllib.request.Request(
+            f"https://kubernetes.default.svc/api/v1/namespaces/{namespace}/pods?labelSelector=app.kubernetes.io/name=hermes",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        resp = urllib.request.urlopen(req, context=ctx, timeout=10)
+        data = _json.loads(resp.read())
+        items = data.get("items", [])
+        if items:
+            pod_name = items[0]["metadata"]["name"]
+    except Exception:
+        pass
+
+    if not pod_name:
+        return False
+
+    # Exec via subprocess avec timeout court
+    try:
+        b64cmd = base64.b64encode(command.encode()).decode()
         result = subprocess.run(
             ["kubectl",
-             "--server", server,
-             "--token", token,
+             "--server", "https://kubernetes.default.svc",
+             "--token", open(token_path).read().strip(),
              "--certificate-authority", ca_path,
-             "exec", "-n", "ai", "deployment/hermes", "--",
+             "--request-timeout", "15s",
+             "--insecure-skip-tls-verify", "true",
+             "exec", "-n", namespace, pod_name, "--",
              "sh", "-c", command],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=20,
         )
         return result.returncode == 0
     except Exception:
@@ -111,8 +140,8 @@ def create_agent_profile(name: str, description: str) -> bool:
         f"  base_url: https://ark.ap-southeast.bytepluses.com/api/coding/v3\n"
         f"CFG"
     )
-    return _kubectl_exec(cmd)
+    return _k8s_exec(cmd)
 
 
 def delete_agent_profile(name: str) -> bool:
-    return _kubectl_exec(f"rm -rf /opt/data/profiles/{name}")
+    return _k8s_exec(f"rm -rf /opt/data/profiles/{name}")

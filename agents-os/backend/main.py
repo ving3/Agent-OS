@@ -65,7 +65,7 @@ def serve_spa(request: Request, response: Response):
 
 @app.get("/logout")
 def logout(response: Response):
-    response.delete_cookie("token", path="/")
+    response.delete_cookie("token", path="/", samesite="lax", httponly=True)
     return RedirectResponse(url="/login", status_code=302)
 
 

@@ -475,7 +475,21 @@ cartes et images. Les blocs sont déplaçables et connectables par des flèches.
 
 ### Description
 Visualisation interactive des agents et de leurs compétences sous forme de graphe
-force-directed. Recherche et filtrage par type de nœud.
+force-directed. Les relations sont calculées automatiquement par similarité sémantique
+des profils (SOUL.md). Recherche et filtrage par type de nœud.
+
+### Comment se construisent les relations ?
+
+Le backend `/api/graph` analyse le contenu des profils agents pour établir
+des relations réelles :
+
+1. **Extraction de mots-clés** : chaque `SOUL.md` est parsé, les stopwords
+   (fr/en) sont filtrés, les mots significatifs sont extraits
+2. **Similarité cosinus** : calcul du score de similarité entre chaque paire d'agents
+3. **Seuil minimal** : seules les relations avec un score > 5% sont conservées
+4. **Concepts émergents** : les mots-clés apparaissant chez ≥ 2 agents deviennent
+   des nœuds "concept" reliés aux agents concernés
+5. **Skills** : les compétences sont reliées aux agents par compatibilité sémantique
 
 ### Acteurs
 - **Utilisateur**
@@ -483,11 +497,11 @@ force-directed. Recherche et filtrage par type de nœud.
 ### Flux
 
 ```
-┌──────────┐  GET /api/profiles      ┌──────────┐
-│  SPA     │ ────────────────────►  │  FastAPI  │
-│ (graph)  │ ◄────────────────────  │           │
-│          │  profiles + skills     │           │
-└─────┬────┘                        └──────────┘
+┌──────────┐  GET /api/graph          ┌──────────┐  read SOUL.md     ┌──────────┐
+│  SPA     │ ──────────────────────► │  FastAPI  │ ────────────────► │  Hermes  │
+│ (graph)  │ ◄────────────────────── │           │ ◄──────────────── │  PVC     │
+│          │  {nodes, edges}         │           │  cosine sim       │          │
+└─────┬────┘                         └──────────┘                    └──────────┘
       │
       │  Force simulation (requestAnimationFrame)
       │  Rendu SVG des nœuds et arêtes
@@ -497,6 +511,50 @@ force-directed. Recherche et filtrage par type de nœud.
 │  SVG     │   ╲╱
 └──────────┘
 ```
+
+### Types de nœuds
+
+| Type | Icône | Couleur | Source |
+|------|-------|---------|--------|
+| Agent | 🤖 | Spécifique au profil | `/api/profiles` |
+| Skill | 🧩 | Orange | `/api/skills` |
+| Concept | 💡 | Violet | Mots-clés extraits |
+
+### Types d'arêtes
+
+| Relation | Label | Poids |
+|----------|-------|-------|
+| Agent ↔ Agent | "similarité X%" | Score cosinus |
+| Agent ↔ Skill | "compatibilité X%" | Score cosinus |
+| Agent ↔ Concept | Mot-clé | 0.5 |
+
+### Exemple de réponse API
+
+```json
+{
+  "nodes": [
+    {"id":"agent-architect","label":"architect","type":"agent","color":"#1f6feb","emoji":"🏛️","size":50,
+     "data":{"description":"Conception système","keywords":"système, adr, microservices","memory":"Active"}},
+    {"id":"skill-github","label":"github","type":"skill","color":"#d29922","emoji":"🧩","size":35,
+     "data":{"path":"github","description":"GitHub integration"}},
+    {"id":"concept-securite","label":"securite","type":"concept","color":"#bc8cff","emoji":"💡","size":30,
+     "data":{"count":"3"}}
+  ],
+  "edges": [
+    {"source":"agent-architect","target":"agent-senior-dev","weight":0.15,"label":"similarité 15%"},
+    {"source":"agent-architect","target":"skill-github","weight":0.08,"label":"compatibilité 8%"},
+    {"source":"agent-architect","target":"concept-securite","weight":0.5,"label":"securite"}
+  ]
+}
+```
+
+### Fonctionnalités du panneau
+
+- **Recherche** : filtre les nœuds par nom
+- **Filtre par type** : Agent, Skill, Concept
+- **Panneau latéral** : clic sur un nœud → propriétés + connexions directes
+- **Force simulation** : animation continue (répulsion + attraction + gravité)
+- **Réinitialiser** : efface la recherche et les filtres
 
 ---
 

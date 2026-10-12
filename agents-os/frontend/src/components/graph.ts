@@ -77,46 +77,29 @@ export function renderGraph(container: HTMLElement): void {
     </div>
   `;
 
-  buildGraphData();
+  buildGraphData().then(() => {
+    renderGraphCanvas();
+    startForceSimulation();
+  });
   bindEvents();
-  startForceSimulation();
   store.subscribe(onStoreUpdate);
 }
 
-function buildGraphData(): void {
-  const profiles = store.getState().profiles;
-  const skills = store.getState().skills;
+async function buildGraphData(): Promise<void> {
+  try {
+    const r = await fetch("/api/graph");
+    const data = await r.json();
+    if (data.nodes && data.edges) {
+      state.nodes = data.nodes.map((n: any) => ({ ...n, vx: 0, vy: 0 }));
+      state.edges = data.edges;
+      return;
+    }
+  } catch (e) {
+    console.error("Graph load failed:", e);
+  }
+  // Fallback: empty
   state.nodes = [];
   state.edges = [];
-
-  // Agent nodes
-  profiles.forEach((p, i) => {
-    state.nodes.push({
-      id: `agent-${p.name}`, label: p.name, type: "agent",
-      x: 200 + Math.cos((i / profiles.length) * Math.PI * 2) * 150,
-      y: 200 + Math.sin((i / profiles.length) * Math.PI * 2) * 150,
-      vx: 0, vy: 0, color: p.color, emoji: p.emoji, size: 50,
-      data: { description: p.description, memory: p.memory ? "Active" : "Vide" },
-    });
-  });
-
-  // Skill nodes
-  skills.forEach((s, i) => {
-    state.nodes.push({
-      id: `skill-${s.name}`, label: s.name, type: "skill",
-      x: 400 + Math.cos((i / Math.max(skills.length, 1)) * Math.PI * 2) * 100,
-      y: 300 + Math.sin((i / Math.max(skills.length, 1)) * Math.PI * 2) * 100,
-      vx: 0, vy: 0, color: "#d29922", emoji: "🧩", size: 35,
-      data: { path: s.path, description: s.description },
-    });
-  });
-
-  // Connect agents to skills (random for demo)
-  profiles.forEach(p => {
-    skills.slice(0, Math.min(3, skills.length)).forEach(s => {
-      state.edges.push({ source: `agent-${p.name}`, target: `skill-${s.name}`, weight: 0.5, label: "utilise" });
-    });
-  });
 }
 
 // -- Force simulation -----------------------------------------------------------
@@ -290,9 +273,9 @@ function selectNode(id: string): void {
   renderGraphCanvas();
 }
 
-function onStoreUpdate(): void {
+async function onStoreUpdate(): Promise<void> {
   if (store.getState().activePanel !== "graph") return;
-  buildGraphData();
+  await buildGraphData();
   renderGraphCanvas();
 }
 

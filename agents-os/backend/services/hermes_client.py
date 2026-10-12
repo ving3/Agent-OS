@@ -74,7 +74,9 @@ def list_skills() -> list[dict]:
 def list_profiles() -> list[str]:
     pp = Path(PROFILES_DIR)
     if pp.is_dir():
-        return sorted(p.name for p in pp.iterdir() if p.is_dir())
+        # Exclure les tombstones (.deleted-*) et fichiers caches NFS (.nfs*)
+        return sorted(p.name for p in pp.iterdir()
+                      if p.is_dir() and not p.name.startswith("."))
     return []
 
 
@@ -116,13 +118,44 @@ def create_agent_profile(name: str, description: str, model: str, base_url: str,
 
 
 def delete_agent_profile(name: str) -> bool:
-    """Supprime un profil agent directement sur le PVC Hermes."""
+    """Supprime un profil agent sur le PVC NFS Hermes.
+
+    Le PVC est un volume NFS : supprimer directement un dossier dont un
+    fichier est encore ouvert par le process Hermes echoue sur les
+    fichiers '.nfsXXXX' (silly-rename). Solution : renommer d'abord le
+    dossier en tombstone (operation atomique), puis purger en best-effort.
+    """
     import shutil
 
+    purge_old_tombstones()  # nettoyage opportuniste des suppressions precedentes
+
     profile_dir = Path(PROFILES_DIR) / name
-    try:
-        if profile_dir.is_dir():
-            shutil.rmtree(profile_dir)
+    if not profile_dir.is_dir():
         return True
+
+    tombstone = Path(PROFILES_DIR) / f".deleted-{name}-{int(time.time())}"
+    try:
+        profile_dir.rename(tombstone)  # atomique, meme si fichiers ouverts
     except Exception:
         return False
+
+    # Purge best-effort (les .nfs* residuels disparaissent cote serveur NFS)
+    shutil.rmtree(tombstone, ignore_errors=True)
+    return True
+
+
+def purge_old_tombstones(max_age_seconds: int = 60) -> None:
+    """Nettoie les tombstones de suppression (best-effort)."""
+    import shutil
+
+    pp = Path(PROFILES_DIR)
+    if not pp.is_dir():
+        return
+    now = time.time()
+    for item in pp.iterdir():
+        if item.is_dir() and item.name.startswith(".deleted-"):
+            try:
+                if now - item.stat().st_mtime > max_age_seconds:
+                    shutil.rmtree(item, ignore_errors=True)
+            except OSError:
+                pass

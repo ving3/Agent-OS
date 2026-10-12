@@ -3,11 +3,38 @@
 from collections import Counter
 from pathlib import Path
 from fastapi import APIRouter, Request
+from pydantic import BaseModel
 from database import get_user_from_token
 from services.hermes_client import list_profiles, list_skills
-from config import AGENTS, PROFILES_DIR, SKILLS_DIR, PANELS
+from config import AGENTS, PROFILES_DIR, SKILLS_DIR, DATA_DIR, PANELS
 
 router = APIRouter(prefix="/api", tags=["graph"])
+
+CONNECTIONS_FILE = Path(DATA_DIR) / "graph-connections.json"
+
+
+class ConnectRequest(BaseModel):
+    source: str
+    target: str
+    label: str = ""
+
+
+def _load_connections() -> list[dict]:
+    """Charge les connexions personnalisees depuis le fichier JSON."""
+    import json
+    if CONNECTIONS_FILE.exists():
+        try:
+            return json.loads(CONNECTIONS_FILE.read_text())
+        except Exception:
+            pass
+    return []
+
+
+def _save_connections(connections: list[dict]) -> None:
+    """Sauvegarde les connexions personnalisees."""
+    import json
+    CONNECTIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    CONNECTIONS_FILE.write_text(json.dumps(connections, indent=2))
 
 
 def _read_profile_soul(name: str) -> str:
@@ -157,4 +184,66 @@ def get_graph(request: Request):
                     "label": concept,
                 })
 
+    # 6. Connexions personnalisees (merge avec auto)
+    custom_edges = _load_connections()
+    # Filtrer les connexions custom qui existent deja en auto
+    existing_pairs = {(e["source"], e["target"]) for e in edges}
+    for ce in custom_edges:
+        pair = (ce["source"], ce["target"])
+        reverse_pair = (ce["target"], ce["source"])
+        if pair not in existing_pairs and reverse_pair not in existing_pairs:
+            edges.append(ce)
+
     return {"nodes": nodes, "edges": edges}
+
+
+# ── Connexions personnalisees ──────────────────────────────────────────────────
+
+@router.post("/graph/connect")
+def connect_nodes(body: ConnectRequest, request: Request):
+    """Cree une connexion personnalisee entre deux nœuds."""
+    token = request.cookies.get("token") or request.headers.get("Authorization", "").removeprefix("Bearer ")
+    if not get_user_from_token(token):
+        return {"success": False, "error": "Non autorise"}
+
+    connections = _load_connections()
+    # Eviter les doublons
+    existing = any(
+        (c["source"] == body.source and c["target"] == body.target) or
+        (c["source"] == body.target and c["target"] == body.source)
+        for c in connections
+    )
+    if existing:
+        return {"success": False, "error": "Connexion deja existante"}
+
+    connections.append({
+        "source": body.source,
+        "target": body.target,
+        "label": body.label or "connecté",
+        "weight": 0.8,
+        "custom": True,
+    })
+    _save_connections(connections)
+    return {"success": True, "connection": connections[-1]}
+
+
+@router.post("/graph/disconnect")
+def disconnect_nodes(body: ConnectRequest, request: Request):
+    """Supprime une connexion personnalisee entre deux nœuds."""
+    token = request.cookies.get("token") or request.headers.get("Authorization", "").removeprefix("Bearer ")
+    if not get_user_from_token(token):
+        return {"success": False, "error": "Non autorise"}
+
+    connections = _load_connections()
+    before = len(connections)
+    connections = [
+        c for c in connections
+        if not (
+            (c["source"] == body.source and c["target"] == body.target) or
+            (c["source"] == body.target and c["target"] == body.source)
+        )
+    ]
+    if len(connections) == before:
+        return {"success": False, "error": "Connexion non trouvee"}
+    _save_connections(connections)
+    return {"success": True}

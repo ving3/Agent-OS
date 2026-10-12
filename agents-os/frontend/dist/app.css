@@ -1062,6 +1062,15 @@ body {
 .aos-gp-connections { max-height: 200px; overflow-y: auto; }
 
 .aos-graph-node { transition: opacity 0.3s; }
+.aos-graph-connect-hint {
+  background: rgba(57,210,192,0.1);
+  border: 1px solid var(--aos-cyan);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--aos-cyan);
+  margin-bottom: 12px;
+}
 
 /* -- Kanban panel ----------------------------------------------------------- */
 

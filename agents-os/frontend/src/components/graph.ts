@@ -24,6 +24,7 @@ interface GraphEdge {
   target: string;
   weight: number;
   label: string;
+  custom?: boolean;
 }
 
 interface GraphState {
@@ -33,6 +34,8 @@ interface GraphState {
   searchQuery: string;
   filterType: string;
   animating: boolean;
+  connectMode: boolean;
+  connectingFrom: string | null;
 }
 
 const state: GraphState = {
@@ -42,6 +45,8 @@ const state: GraphState = {
   searchQuery: "",
   filterType: "all",
   animating: false,
+  connectMode: false,
+  connectingFrom: null,
 };
 
 export function renderGraph(container: HTMLElement): void {
@@ -58,8 +63,12 @@ export function renderGraph(container: HTMLElement): void {
             <option value="memory">Mémoire</option>
             <option value="concept">Concepts</option>
           </select>
+          <button class="aos-btn aos-btn-sm" id="aos-graph-connect">🔗 Connecter</button>
           <button class="aos-btn aos-btn-sm" id="aos-graph-reset">↺ Réinitialiser</button>
         </div>
+      </div>
+      <div class="aos-graph-connect-hint" id="aos-graph-connect-hint" style="display:none">
+        🔗 Mode connexion actif : cliquez un premier nœud, puis un second pour les relier
       </div>
 
       <div class="aos-graph-layout">
@@ -177,19 +186,22 @@ function renderGraphCanvas(): void {
         const src = state.nodes.find(n => n.id === e.source);
         const tgt = state.nodes.find(n => n.id === e.target);
         if (!src || !tgt) return "";
+        const isSelected = state.selectedNode?.id === src.id || state.selectedNode?.id === tgt.id;
+        const stroke = e.custom ? "#39d2c0" : (isSelected ? "#58a6ff" : "#30363d");
+        const dash = e.custom ? 'stroke-dasharray="6,4"' : "";
+        const width = e.custom ? 2.5 : (isSelected ? 3 : 1.5);
         return `<line x1="${src.x}" y1="${src.y}" x2="${tgt.x}" y2="${tgt.y}"
-          stroke="${state.selectedNode?.id === src.id || state.selectedNode?.id === tgt.id ? '#58a6ff' : '#30363d'}"
-          stroke-width="${state.selectedNode?.id === src.id || state.selectedNode?.id === tgt.id ? 3 : 1.5}"
-          opacity="${searchMatch && !searchMatch.includes(src) && !searchMatch.includes(tgt) ? 0.1 : 0.6}" />`;
+          stroke="${stroke}" stroke-width="${width}" ${dash}
+          opacity="${searchMatch && !searchMatch.includes(src) && !searchMatch.includes(tgt) ? 0.1 : 0.7}" />`;
       }).join("")}
 
       <!-- Nodes -->
       ${filtered.map(n => {
         const highlight = searchMatch?.includes(n);
-        const selected = state.selectedNode?.id === n.id;
+        const selected = state.selectedNode?.id === n.id || state.connectingFrom === n.id;
         const opacity = searchMatch && !highlight ? 0.15 : 1;
         return `<g transform="translate(${n.x},${n.y})" class="aos-graph-node"
-          data-node-id="${n.id}" style="cursor:pointer;opacity:${opacity}">
+          data-node-id="${n.id}" style="cursor:${state.connectMode ? 'crosshair' : 'pointer'};opacity:${opacity}">
           <circle r="${n.size / 2}" fill="${n.color}22" stroke="${selected ? '#58a6ff' : n.color}"
             stroke-width="${selected ? 3 : 2}" />
           <text text-anchor="middle" dy="5" font-size="${n.size / 4}">${n.emoji}</text>
@@ -223,10 +235,20 @@ function bindEvents(): void {
     state.searchQuery = "";
     state.filterType = "all";
     state.selectedNode = null;
+    state.connectMode = false;
+    state.connectingFrom = null;
     (document.getElementById("aos-graph-search") as HTMLInputElement).value = "";
     (document.getElementById("aos-graph-filter") as HTMLSelectElement).value = "all";
     const panel = document.getElementById("aos-graph-panel");
     if (panel) panel.style.display = "none";
+    updateConnectUI();
+    renderGraphCanvas();
+  });
+
+  document.getElementById("aos-graph-connect")?.addEventListener("click", () => {
+    state.connectMode = !state.connectMode;
+    state.connectingFrom = null;
+    updateConnectUI();
     renderGraphCanvas();
   });
 
@@ -238,9 +260,36 @@ function bindEvents(): void {
   });
 }
 
+function updateConnectUI(): void {
+  const btn = document.getElementById("aos-graph-connect");
+  const hint = document.getElementById("aos-graph-connect-hint");
+  if (btn) {
+    btn.classList.toggle("aos-btn-primary", state.connectMode);
+    btn.textContent = state.connectMode ? "✕ Annuler connexion" : "🔗 Connecter";
+  }
+  if (hint) hint.style.display = state.connectMode ? "block" : "none";
+}
+
 function selectNode(id: string): void {
   const node = state.nodes.find(n => n.id === id);
   if (!node) return;
+
+  // Mode connexion : premier clic = source, second clic = cible
+  if (state.connectMode) {
+    if (!state.connectingFrom) {
+      state.connectingFrom = id;
+      renderGraphCanvas();
+      return;
+    }
+    if (state.connectingFrom === id) {
+      state.connectingFrom = null;
+      renderGraphCanvas();
+      return;
+    }
+    createConnection(state.connectingFrom, id);
+    state.connectingFrom = null;
+    return;
+  }
 
   state.selectedNode = node;
   const panel = document.getElementById("aos-graph-panel");
@@ -251,26 +300,67 @@ function selectNode(id: string): void {
 
   const body = document.getElementById("aos-gp-body");
   if (body) {
+    const directEdges = state.edges.filter(e => e.source === id || e.target === id);
     body.innerHTML = `
       <div class="aos-gp-field"><label>Type</label><span>${node.type}</span></div>
       ${Object.entries(node.data).map(([k, v]) => `<div class="aos-gp-field"><label>${k}</label><span>${esc(v)}</span></div>`).join("")}
       <div class="aos-gp-section">
         <label>Connexions directes</label>
         <div class="aos-gp-connections">
-          ${state.edges.filter(e => e.source === id || e.target === id).map(e => {
+          ${directEdges.map(e => {
             const other = e.source === id ? e.target : e.source;
             const otherNode = state.nodes.find(n => n.id === other);
+            const delBtn = e.custom ? `<button class="aos-btn aos-btn-sm aos-btn-danger" data-disconnect="${e.source}|${e.target}" title="Supprimer la connexion">✕</button>` : "";
             return `<div class="aos-gp-conn">
               ${e.source === id ? "→" : "←"} ${otherNode?.emoji ?? ""} ${otherNode?.label ?? other}
-              <span class="aos-gp-conn-label">${e.label}</span>
+              <span class="aos-gp-conn-label">${e.label}${e.custom ? " (custom)" : ""}</span>
+              ${delBtn}
             </div>`;
           }).join("") || "<span class='aos-empty-state'>Aucune connexion</span>"}
         </div>
       </div>
     `;
+    body.querySelectorAll<HTMLButtonElement>("[data-disconnect]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const [s, t] = btn.dataset.disconnect!.split("|");
+        removeConnection(s, t);
+      });
+    });
   }
 
   renderGraphCanvas();
+}
+
+// -- Connect / Disconnect ------------------------------------------------------
+
+async function createConnection(source: string, target: string): Promise<void> {
+  const r = await fetch("/api/graph/connect", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ source, target, label: "connecté" }),
+  });
+  const d = await r.json();
+  if (d.success) {
+    await buildGraphData();
+    renderGraphCanvas();
+  } else {
+    alert(d.error || "Erreur de connexion");
+  }
+}
+
+async function removeConnection(source: string, target: string): Promise<void> {
+  const r = await fetch("/api/graph/disconnect", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ source, target }),
+  });
+  const d = await r.json();
+  if (d.success) {
+    await buildGraphData();
+    renderGraphCanvas();
+  } else {
+    alert(d.error || "Erreur de suppression");
+  }
 }
 
 async function onStoreUpdate(): Promise<void> {

@@ -8,6 +8,10 @@ HERMES_API_KEY = os.environ.get("HERMES_API_KEY", "")
 PROFILES_DIR = os.environ.get("PROFILES_DIR", "/opt/data/profiles")
 SKILLS_DIR = os.environ.get("SKILLS_DIR", "/opt/data/skills")
 
+# Ownership des fichiers profils cote Hermes (hermes-agent tourne en uid/gid 10000)
+HERMES_UID = int(os.environ.get("HERMES_UID", "10000"))
+HERMES_GID = int(os.environ.get("HERMES_GID", "10000"))
+
 HOST = os.environ.get("BRIDGE_HOST", "0.0.0.0")
 PORT = int(os.environ.get("BRIDGE_PORT", "8686"))
 

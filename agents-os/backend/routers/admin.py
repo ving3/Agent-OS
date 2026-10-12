@@ -13,6 +13,8 @@ from schemas import (
 )
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+# Router separe pour /api/users (le prefixe /api/admin ne permet pas /api/users)
+users_router = APIRouter(prefix="/api", tags=["admin"])
 
 
 def _require_admin(request: Request, response: Response) -> dict | None:
@@ -27,7 +29,7 @@ def _require_admin(request: Request, response: Response) -> dict | None:
     return user
 
 
-@router.get("/../users", response_model=UserListResponse)
+@users_router.get("/users", response_model=UserListResponse)
 def list_users(request: Request, response: Response):
     if not _require_admin(request, response):
         return {"users": [], "panels": [], "agents": []}

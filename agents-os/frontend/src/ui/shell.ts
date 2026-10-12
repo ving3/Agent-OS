@@ -61,10 +61,17 @@ function renderNav(): void {
 
   nav.innerHTML = PANEL_DEFS
     .filter(p => {
-      if (p.id === "admin" && user?.role !== "admin") return false;
-      if (user?.role === "admin") return true;
-      const allowed = user?.permissions.panels ?? [];
-      return p.id === "overview" || allowed.includes(p.id);
+      // Status pas encore charge : afficher tous les panels (optimiste)
+      if (!user) return true;
+      // Panneau admin reserve aux admins
+      if (p.id === "admin") return user.role === "admin";
+      // Admin : tous les panels
+      if (user.role === "admin") return true;
+      // Permissions vides ou absentes = tous les panels par defaut
+      const allowed = user.permissions?.panels ?? [];
+      if (allowed.length === 0) return true;
+      // Sinon : uniquement les panels autorises explicitement
+      return allowed.includes(p.id);
     })
     .map(p => {
       const active = state.activePanel === p.id ? " active" : "";

@@ -164,7 +164,9 @@ class Store {
   async fetchStatus(): Promise<void> {
     const r = await fetch("/api/status");
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const status = await r.json() as SystemStatus;
+    const status = await r.json() as SystemStatus & { error?: string };
+    // L'API retourne 200 + {error} si le token est invalide — ne pas l'accepter
+    if (status.error) throw new Error(status.error);
     this.setStatus(status);
     const metric: MetricsSnapshot = {
       timestamp: Date.now(),

@@ -128,7 +128,13 @@ def _k8s_exec(command: str) -> bool:
         return False
 
 
-def create_agent_profile(name: str, description: str) -> bool:
+def create_agent_profile(name: str, description: str, model: str, base_url: str, api_key: str = "") -> bool:
+    """Cree un profil agent avec le modele et le fournisseur choisis.
+
+    Le config.yaml du profil definit le modele par defaut et l'endpoint.
+    La cle API est incluse si fournie (sinon la cle globale est utilisee).
+    """
+    key_line = f"  api_key: {api_key}\n" if api_key else ""
     cmd = (
         f"mkdir -p /opt/data/profiles/{name} && "
         f"cat > /opt/data/profiles/{name}/SOUL.md << 'SOUL'\n"
@@ -136,8 +142,9 @@ def create_agent_profile(name: str, description: str) -> bool:
         f"## Role\n\nAgent cree depuis Agentic OS Dashboard.\n"
         f"SOUL\n"
         f"cat > /opt/data/profiles/{name}/config.yaml << 'CFG'\n"
-        f"model:\n  provider: openai\n  default: deepseek-v4-pro-260425\n"
-        f"  base_url: https://ark.ap-southeast.bytepluses.com/api/coding/v3\n"
+        f"model:\n  provider: openai\n  default: {model}\n"
+        f"  base_url: {base_url}\n"
+        f"{key_line}"
         f"CFG"
     )
     return _k8s_exec(cmd)

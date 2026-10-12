@@ -23,3 +23,33 @@ AGENTS: dict[str, dict] = {
     "qa-engineer": {"emoji": "🧪", "color": "#d29922", "desc": "Tests, TDD, chasse aux bugs"},
     "devops":      {"emoji": "⚙️",  "color": "#da3633", "desc": "CI/CD, conteneurs, infrastructure"},
 }
+
+# ── Fournisseurs LLM disponibles pour la creation d'agents ────────────────────
+# key_env : variable d'environnement contenant la cle API du fournisseur.
+# Si la variable n'est pas definie, Hermes utilise la cle globale (OPENAI_API_KEY).
+PROVIDERS: dict[str, dict] = {
+    "deepseek": {
+        "label": "DeepSeek",
+        "base_url": "https://api.deepseek.com",
+        "models": ["deepseek-v4-pro", "deepseek-flash"],
+        "key_env": "DEEPSEEK_API_KEY",
+    },
+    "byteplus": {
+        "label": "BytePlus ARK (legacy)",
+        "base_url": "https://ark.ap-southeast.bytepluses.com/api/coding/v3",
+        "models": ["deepseek-v4-pro-260425"],
+        "key_env": "BYTEDANCE_API_KEY",
+    },
+    "openai": {
+        "label": "OpenAI",
+        "base_url": "https://api.openai.com/v1",
+        "models": ["gpt-4o", "gpt-4o-mini", "o3-mini"],
+        "key_env": "OPENAI_PROVIDER_API_KEY",
+    },
+    "custom": {
+        "label": "Custom (OpenAI-compatible)",
+        "base_url": "",
+        "models": [],
+        "key_env": None,
+    },
+}

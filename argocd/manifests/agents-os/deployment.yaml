@@ -39,6 +39,11 @@ spec:
                 secretKeyRef:
                   name: ai-secrets
                   key: WEBUI_SECRET_KEY
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: DEEPSEEK_API_KEY
             - name: PROFILES_DIR
               value: /opt/data/profiles
             - name: SKILLS_DIR

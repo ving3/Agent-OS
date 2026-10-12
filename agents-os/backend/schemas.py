@@ -82,9 +82,25 @@ class CreateAgentRequest(BaseModel):
     emoji: str = "🤖"
     color: str = "#58a6ff"
     description: str = ""
+    provider: str = Field(default="deepseek", max_length=32)
+    model: str = Field(default="deepseek-v4-pro", max_length=128)
+    base_url: str = Field(default="", max_length=255)  # requis pour provider=custom
 
 class DeleteAgentRequest(BaseModel):
     name: str
+
+
+# ── Fournisseurs LLM ───────────────────────────────────────────────────────────
+
+class ProviderInfo(BaseModel):
+    id: str
+    label: str
+    models: list[str]
+    base_url: str = ""
+    key_configured: bool = False
+
+class ProviderListResponse(BaseModel):
+    providers: list[ProviderInfo]
 
 
 # ── Système ────────────────────────────────────────────────────────────────────

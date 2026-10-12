@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 """Agent OS — Router Admin (CRUD utilisateurs, gestion agents)"""
 import json
+import os
 from fastapi import APIRouter, Request, Response
 from database import get_db, get_user_from_token, hash_password
 from services.hermes_client import list_profiles, create_agent_profile, delete_agent_profile
-from config import PANELS, AGENTS
+from config import PANELS, AGENTS, PROVIDERS
 from schemas import (
     UserListResponse, CreateUserRequest, UpdateUserRequest,
     UpdatePermissionsRequest, DeleteUserRequest,
     CreateAgentRequest, DeleteAgentRequest,
+    ProviderListResponse, ProviderInfo,
     SuccessResponse, ErrorResponse,
 )
 
@@ -42,6 +44,25 @@ def list_users(request: Request, response: Response):
               "disabled": bool(r[4]), "created_at": r[5],
               "permissions": json.loads(r[6]) if r[6] else {}} for r in rows]
     return {"users": users, "panels": PANELS, "agents": list_profiles()}
+
+
+@users_router.get("/providers", response_model=ProviderListResponse)
+def list_providers(request: Request):
+    """Liste les fournisseurs LLM disponibles pour la création d'agents."""
+    token = request.cookies.get("token") or request.headers.get("Authorization", "").removeprefix("Bearer ")
+    if not get_user_from_token(token):
+        return {"providers": []}
+    providers = [
+        ProviderInfo(
+            id=pid,
+            label=p["label"],
+            models=p["models"],
+            base_url=p["base_url"],
+            key_configured=bool(p.get("key_env") and os.environ.get(p["key_env"])),
+        )
+        for pid, p in PROVIDERS.items()
+    ]
+    return {"providers": providers}
 
 
 @router.post("/user/create", response_model=SuccessResponse | ErrorResponse)
@@ -127,8 +148,33 @@ def create_agent(body: CreateAgentRequest, request: Request, response: Response)
     if name in existing:
         response.status_code = 409
         return {"error": f"L'agent '{name}' existe déjà"}
-    if create_agent_profile(name, body.description):
-        AGENTS[name] = {"emoji": body.emoji, "color": body.color, "desc": body.description}
+
+    # Resoudre le fournisseur LLM choisi
+    provider = PROVIDERS.get(body.provider)
+    if not provider:
+        response.status_code = 400
+        return {"error": f"Fournisseur inconnu: {body.provider}"}
+
+    base_url = provider["base_url"]
+    model = body.model.strip()
+    if body.provider == "custom":
+        base_url = body.base_url.strip()
+        if not base_url or not model:
+            response.status_code = 400
+            return {"error": "Fournisseur custom : base_url et modèle sont obligatoires"}
+    else:
+        if model not in provider["models"]:
+            response.status_code = 400
+            return {"error": f"Modèle '{model}' non disponible chez {provider['label']}"}
+
+    # Cle API du fournisseur (fallback : cle globale Hermes)
+    api_key = ""
+    if provider.get("key_env"):
+        api_key = os.environ.get(provider["key_env"], "")
+
+    if create_agent_profile(name, body.description, model, base_url, api_key):
+        AGENTS[name] = {"emoji": body.emoji, "color": body.color,
+                        "desc": f"{body.description} [{provider['label']} · {model}]"}
         return {"success": True}
     response.status_code = 500
     return {"error": "Erreur lors de la création de l'agent"}

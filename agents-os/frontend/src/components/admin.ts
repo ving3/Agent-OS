@@ -128,6 +128,22 @@ export function renderAdmin(container: HTMLElement): void {
                 <label>Description</label>
                 <input type="text" id="aa-desc" class="aos-input" placeholder="Description du rôle de l'agent">
               </div>
+              <div class="aos-form-group">
+                <label>Fournisseur LLM</label>
+                <select id="aa-provider" class="aos-select">
+                  <option value="">Chargement...</option>
+                </select>
+              </div>
+              <div class="aos-form-group">
+                <label>Modèle</label>
+                <select id="aa-model" class="aos-select">
+                  <option value="">Choisir un fournisseur</option>
+                </select>
+              </div>
+              <div class="aos-form-group" id="aa-baseurl-group" style="grid-column:1/-1;display:none">
+                <label>Base URL (fournisseur custom)</label>
+                <input type="text" id="aa-baseurl" class="aos-input" placeholder="https://mon-endpoint/v1">
+              </div>
             </div>
           </div>
           <div class="aos-modal-footer">
@@ -186,6 +202,11 @@ function bindEvents(): void {
   document.getElementById("aa-open-create")?.addEventListener("click", () => {
     const modal = document.getElementById("create-agent-modal");
     if (modal) modal.style.display = "flex";
+    loadProviders();
+  });
+  // Provider -> model cascade
+  document.getElementById("aa-provider")?.addEventListener("change", (e) => {
+    updateModelOptions((e.target as HTMLSelectElement).value);
   });
   // Delete agent confirm
   document.getElementById("da-confirm-btn")?.addEventListener("click", handleDeleteAgent);
@@ -454,21 +475,76 @@ async function handleSavePerms(): Promise<void> {
   loadData();
 }
 
+// -- Fournisseurs LLM ------------------------------------------------------------
+
+let providersCache: { id: string; label: string; models: string[]; base_url: string; key_configured: boolean }[] = [];
+
+async function loadProviders(): Promise<void> {
+  if (providersCache.length > 0) { renderProviderOptions(); return; }
+  try {
+    const r = await fetch("/api/providers");
+    const d = await r.json();
+    providersCache = d.providers || [];
+    renderProviderOptions();
+  } catch {
+    /* ignore */
+  }
+}
+
+function renderProviderOptions(): void {
+  const sel = document.getElementById("aa-provider") as HTMLSelectElement;
+  if (!sel) return;
+  sel.innerHTML = providersCache.map(p =>
+    `<option value="${p.id}">${p.label}${p.key_configured ? " ✓" : ""}</option>`
+  ).join("");
+  if (providersCache.length > 0) updateModelOptions(providersCache[0].id);
+}
+
+function updateModelOptions(providerId: string): void {
+  const modelSel = document.getElementById("aa-model") as HTMLSelectElement;
+  const urlGroup = document.getElementById("aa-baseurl-group");
+  if (!modelSel) return;
+  const p = providersCache.find(x => x.id === providerId);
+  if (!p) { modelSel.innerHTML = ""; return; }
+
+  // Fournisseur custom : saisie libre + base_url requis
+  if (p.id === "custom") {
+    if (urlGroup) urlGroup.style.display = "block";
+    modelSel.outerHTML = `<input type="text" id="aa-model" class="aos-input" placeholder="nom-du-modele">`;
+  } else {
+    if (urlGroup) urlGroup.style.display = "none";
+    const input = document.getElementById("aa-model");
+    if (input && input.tagName === "INPUT") {
+      input.outerHTML = `<select id="aa-model" class="aos-select"></select>`;
+    }
+    const sel = document.getElementById("aa-model") as HTMLSelectElement;
+    sel.innerHTML = p.models.map(m => `<option value="${m}">${m}</option>`).join("");
+  }
+}
+
 async function handleCreateAgent(): Promise<void> {
   const name = (document.getElementById("aa-name") as HTMLInputElement)?.value.trim();
   const emoji = (document.getElementById("aa-emoji") as HTMLInputElement)?.value || "🤖";
   const color = (document.getElementById("aa-color") as HTMLInputElement)?.value || "#58a6ff";
   const desc = (document.getElementById("aa-desc") as HTMLInputElement)?.value.trim();
+  const provider = (document.getElementById("aa-provider") as HTMLSelectElement)?.value || "deepseek";
+  const modelEl = document.getElementById("aa-model") as HTMLInputElement | HTMLSelectElement;
+  const model = modelEl?.value.trim() || "";
+  const baseUrl = (document.getElementById("aa-baseurl") as HTMLInputElement)?.value.trim() || "";
   const msgEl = document.getElementById("aa-msg");
 
   if (!name) {
     if (msgEl) { msgEl.textContent = "Le nom est obligatoire"; msgEl.className = "aos-msg aos-msg-error"; }
     return;
   }
+  if (!model) {
+    if (msgEl) { msgEl.textContent = "Le modèle est obligatoire"; msgEl.className = "aos-msg aos-msg-error"; }
+    return;
+  }
   try {
     const r = await fetch("/api/admin/agent/create", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, emoji, color, description: desc }),
+      body: JSON.stringify({ name, emoji, color, description: desc, provider, model, base_url: baseUrl }),
     });
     const d = await r.json();
     if (d.error) {

@@ -64,9 +64,10 @@ def serve_spa(request: Request, response: Response):
 
 
 @app.get("/logout")
-def logout(response: Response):
-    response.set_cookie("token", "", max_age=0, path="/", httponly=True, samesite="lax")
-    return RedirectResponse(url="/login", status_code=302)
+def logout():
+    resp = RedirectResponse(url="/login", status_code=302)
+    resp.set_cookie("token", "", max_age=0, path="/", httponly=True, samesite="lax")
+    return resp
 
 
 # ── Fichiers statiques (CSS, JS, assets) ───────────────────────────────────────

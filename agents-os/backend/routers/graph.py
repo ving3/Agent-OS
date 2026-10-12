@@ -184,15 +184,15 @@ def get_graph(request: Request):
                     "label": concept,
                 })
 
-    # 6. Connexions personnalisees (merge avec auto)
+    # 6. Connexions personnalisees (remplacent les auto si doublon)
     custom_edges = _load_connections()
-    # Filtrer les connexions custom qui existent deja en auto
-    existing_pairs = {(e["source"], e["target"]) for e in edges}
-    for ce in custom_edges:
-        pair = (ce["source"], ce["target"])
-        reverse_pair = (ce["target"], ce["source"])
-        if pair not in existing_pairs and reverse_pair not in existing_pairs:
-            edges.append(ce)
+    if custom_edges:
+        # Supprimer les aretes auto qui ont un doublon custom
+        custom_pairs = {(c["source"], c["target"]) for c in custom_edges} | \
+                       {(c["target"], c["source"]) for c in custom_edges}
+        edges = [e for e in edges if (e["source"], e["target"]) not in custom_pairs]
+        # Ajouter les aretes custom
+        edges.extend(custom_edges)
 
     return {"nodes": nodes, "edges": edges}
 

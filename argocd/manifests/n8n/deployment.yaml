@@ -22,7 +22,7 @@ spec:
       enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
-        fsGroup: 1000
+        fsGroup: 1000740000
       containers:
         - name: n8n
           image: n8nio/n8n:latest

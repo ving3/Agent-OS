@@ -243,6 +243,7 @@ argocd/apps/agents-os-app.yaml
 | 6 | Canvas | `canvas` | `components/canvas.ts` | ✅ Implémenté |
 | 7 | Graphe | `graph` | `components/graph.ts` | ✅ Implémenté |
 | 8 | Kanban | `kanban` | `components/kanban.ts` | ✅ Implémenté |
+| 9 | n8n Orchestration | `n8n` | `components/n8n.ts` | ✅ Implémenté |
 
 ## 7. Flux de données inter-panels
 

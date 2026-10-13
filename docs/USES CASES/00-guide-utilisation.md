@@ -692,6 +692,62 @@ taux d'erreur, uptime, latence. Un flux d'activité affiche les événements ré
 
 ---
 
+## UC-14 — Orchestration n8n des agents
+
+### Description
+Le panneau **n8n Orchestration** permet de chaîner plusieurs agents sur une mission :
+chaque agent reçoit le message enrichi des réponses des agents précédents. Il affiche
+aussi les workflows n8n, leurs exécutions, et permet de les déclencher.
+
+### Acteurs
+- **Utilisateur** (tout rôle)
+
+### Flux (orchestration séquentielle)
+
+```
+┌──────────┐  POST /api/n8n/orchestrate  ┌──────────┐   agent 1   ┌──────────┐
+│  SPA     │ ──────────────────────────► │  FastAPI  │ ──────────► │  Hermes  │
+│ (panel)  │ ◄────────────────────────── │           │ ◄────────── │  :8777   │
+│          │  {results:[{agent, ...}]}   │           │   réponse   └──────────┘
+└──────────┘                             └──────────┘
+                                              │  agent 2 (contexte enrichi)
+                                              ▼
+                                         ┌──────────┐
+                                         │  Hermes  │
+                                         │  :8777   │
+                                         └──────────┘
+```
+
+### Exemple
+
+```bash
+curl -sk -X POST https://agents-os.apps.okdsnoapps.vmapps.home/api/n8n/orchestrate \
+  -H "Content-Type: application/json" \
+  -b "token=..." \
+  -d '{"agents":["devops","architect"],"message":"Planifie l automatisation des deploiements"}'
+
+# Réponse
+{
+  "success": true,
+  "results": [
+    {"agent": "devops", "response": "Pipeline GitOps basé sur Argo CD..."},
+    {"agent": "architect", "response": "Architecture GitOps bout-en-bout..."}
+  ]
+}
+```
+
+### Workflows n8n
+
+| Fonction | Endpoint |
+|----------|----------|
+| Statut n8n | `GET /api/n8n/status` |
+| Liste workflows | `GET /api/n8n/workflows` |
+| Exécutions | `GET /api/n8n/workflows/{id}/executions` |
+| Déclencher workflow | `POST /api/n8n/trigger` |
+| Orchestrer agents | `POST /api/n8n/orchestrate` |
+
+---
+
 ## Résumé des endpoints par use case
 
 | UC | Endpoint | Méthode | Auth |
@@ -709,3 +765,4 @@ taux d'erreur, uptime, latence. Un flux d'activité affiche les événements ré
 | 11 | `/api/admin/user/*` | POST | Admin |
 | 12 | `/api/admin/user/permissions` | POST | Admin |
 | 13 | `/api/status` | GET | Token |
+| 14 | `/api/n8n/orchestrate` | POST | Token |

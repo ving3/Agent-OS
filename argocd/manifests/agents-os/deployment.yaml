@@ -46,13 +46,11 @@ spec:
                   key: DEEPSEEK_API_KEY
             - name: N8N_URL
               value: http://n8n:5678
-            - name: N8N_BASIC_AUTH_USER
-              value: admin
-            - name: N8N_BASIC_AUTH_PASSWORD
+            - name: N8N_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: ai-secrets
-                  key: N8N_BASIC_AUTH_PASSWORD
+                  key: N8N_API_KEY
             - name: PROFILES_DIR
               value: /opt/data/profiles
             - name: SKILLS_DIR

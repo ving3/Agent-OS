@@ -12,6 +12,7 @@ import { renderMemory } from "./components/memory";
 import { renderCanvas } from "./components/canvas";
 import { renderGraph } from "./components/graph";
 import { renderKanban } from "./components/kanban";
+import { renderN8n } from "./components/n8n";
 
 // -- Bootstrap ------------------------------------------------------------------
 
@@ -40,6 +41,7 @@ function init(): void {
           case "canvas": renderCanvas(content); break;
           case "graph": renderGraph(content); break;
           case "kanban": renderKanban(content); break;
+          case "n8n": renderN8n(content); break;
         }
       });
       store.setPanel("overview");

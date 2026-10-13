@@ -1139,6 +1139,77 @@ body {
 .aos-auth-footer a:hover { text-decoration: underline; }
 .aos-btn-full { width: 100%; margin-top: 4px; }
 
+/* -- n8n panel -------------------------------------------------------------- */
+
+.aos-n8n-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.aos-n8n-title { font-size: 16px; font-weight: 600; }
+.aos-n8n-status { margin-left: auto; }
+
+.aos-n8n-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.aos-n8n-col { display: flex; flex-direction: column; gap: 16px; }
+
+.aos-n8n-wf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--aos-border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all var(--aos-transition);
+}
+.aos-n8n-wf:hover { border-color: var(--aos-blue); }
+.aos-n8n-wf-active { border-color: var(--aos-blue); background: rgba(88,166,255,0.05); }
+.aos-n8n-wf-info { flex: 1; min-width: 0; }
+.aos-n8n-wf-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aos-n8n-wf-meta { margin-top: 2px; }
+.aos-n8n-wf-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+.aos-n8n-exec {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--aos-border);
+  font-size: 12px;
+}
+.aos-n8n-exec:last-child { border-bottom: none; }
+.aos-n8n-exec-time { color: var(--aos-text2); font-size: 11px; }
+
+.aos-n8n-agents { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.aos-n8n-result {
+  background: var(--aos-surface2);
+  border: 1px solid var(--aos-border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.aos-n8n-result-agent {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--aos-blue);
+  margin-bottom: 4px;
+}
+.aos-n8n-result-text {
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @media (max-width: 768px) {
   .aos-sidebar { width: 60px; min-width: 60px; }
   .aos-sidebar-logo h1 span,
@@ -1158,4 +1229,5 @@ body {
   .aos-graph-layout { flex-direction: column; }
   .aos-graph-panel { width: 100%; }
   .aos-kanban-board { grid-template-columns: 1fr; }
+  .aos-n8n-layout { grid-template-columns: 1fr; }
 }

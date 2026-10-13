@@ -114,9 +114,32 @@ export interface CreateAgentRequest {
   description: string;
 }
 
+// -- n8n ---------------------------------------------------------------------
+
+export interface N8nWorkflow {
+  id: string;
+  name: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface N8nExecution {
+  id: number;
+  workflow_id: string;
+  status: string;
+  started_at: string;
+  stopped_at: string;
+}
+
+export interface N8nOrchestrateResult {
+  agent: string;
+  response: string;
+}
+
 // -- UI types ----------------------------------------------------------------
 
-export type PanelName = "overview" | "canvas" | "graph" | "chat" | "memory" | "skills" | "kanban" | "admin";
+export type PanelName = "overview" | "canvas" | "graph" | "chat" | "memory" | "skills" | "kanban" | "admin" | "n8n";
 
 export interface ActivityEvent {
   id: string;

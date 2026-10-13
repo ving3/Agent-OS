@@ -15,6 +15,7 @@ const PANEL_DEFS: { id: PanelName; icon: string; label: string; badge?: string }
   { id: "memory", icon: "🧠", label: "Mémoire" },
   { id: "skills", icon: "🧩", label: "Skills" },
   { id: "kanban", icon: "📋", label: "Kanban" },
+  { id: "n8n", icon: "⚡", label: "n8n Orchestration" },
   { id: "admin", icon: "⚙️", label: "Admin" },
 ];
 

@@ -198,3 +198,43 @@ class UserListResponse(BaseModel):
     users: list[UserRecord]
     panels: list[str]
     agents: list[str]
+
+
+# ── n8n (orchestration des agents) ─────────────────────────────────────────────
+
+class N8nWorkflow(BaseModel):
+    id: str
+    name: str
+    active: bool
+    created_at: str = ""
+    updated_at: str = ""
+
+class N8nWorkflowListResponse(BaseModel):
+    workflows: list[N8nWorkflow]
+    online: bool = True
+
+class N8nExecution(BaseModel):
+    id: int
+    workflow_id: str
+    status: str  # success | error | running | waiting
+    started_at: str = ""
+    stopped_at: str = ""
+
+class N8nExecutionListResponse(BaseModel):
+    executions: list[N8nExecution]
+
+class N8nTriggerRequest(BaseModel):
+    workflow_id: str = ""
+    payload: dict = Field(default_factory=dict)
+
+class N8nOrchestrateRequest(BaseModel):
+    """Declenche une chaine d'agents via n8n : les messages sont envoyes
+    sequentiellement a chaque agent et les reponses s'accumulent."""
+    agents: list[str] = Field(default_factory=list)
+    message: str = ""
+    workflow_id: str = ""  # si fourni, declenche le webhook n8n correspondant
+
+class N8nOrchestrateResponse(BaseModel):
+    success: bool
+    results: list[dict] = Field(default_factory=list)
+    error: str = ""

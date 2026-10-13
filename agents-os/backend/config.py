@@ -7,6 +7,7 @@ HERMES_API_URL = os.environ.get("HERMES_API_URL", "http://hermes:8777")
 HERMES_API_KEY = os.environ.get("HERMES_API_KEY", "")
 PROFILES_DIR = os.environ.get("PROFILES_DIR", "/opt/data/profiles")
 SKILLS_DIR = os.environ.get("SKILLS_DIR", "/opt/data/skills")
+N8N_URL = os.environ.get("N8N_URL", "http://n8n:5678")
 
 # Ownership des fichiers profils cote Hermes (hermes-agent tourne en uid/gid 10000)
 HERMES_UID = int(os.environ.get("HERMES_UID", "10000"))

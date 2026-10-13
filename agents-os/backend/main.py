@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 
 from config import HOST, PORT, DATA_DIR, STATIC_DIR
 from database import init_db, get_db
-from routers import auth, dashboard, chat, admin, graph
+from routers import auth, dashboard, chat, admin, graph, n8n
 
 
 @asynccontextmanager
@@ -36,6 +36,7 @@ app.include_router(chat.router)
 app.include_router(admin.router)
 app.include_router(admin.users_router)
 app.include_router(graph.router)
+app.include_router(n8n.router)
 
 
 # ── Pages HTML (SPA fallback) ──────────────────────────────────────────────────

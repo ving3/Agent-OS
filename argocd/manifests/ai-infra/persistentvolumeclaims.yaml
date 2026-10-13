@@ -78,3 +78,19 @@ spec:
   resources:
     requests:
       storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-data
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: n8n
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  storageClassName: ai-local
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

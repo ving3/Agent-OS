@@ -123,3 +123,28 @@ spec:
               operator: In
               values:
                 - okdsnoapps
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ai-n8n-local
+  labels:
+    app.kubernetes.io/name: n8n
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ai-local
+  local:
+    path: /var/lib/ai/n8n
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - okdsnoapps

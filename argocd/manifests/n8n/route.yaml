@@ -1,0 +1,19 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: n8n
+  namespace: ai
+  labels:
+    app.kubernetes.io/name: n8n
+    app.kubernetes.io/part-of: hermes-agents
+spec:
+  host: n8n.apps.okdsnoapps.vmapps.home
+  to:
+    kind: Service
+    name: n8n
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

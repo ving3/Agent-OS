@@ -91,6 +91,7 @@ export function renderGraph(container: HTMLElement): void {
     startForceSimulation();
   });
   bindEvents();
+  bindDragEvents();
   store.subscribe(onStoreUpdate);
 }
 
@@ -99,7 +100,19 @@ async function buildGraphData(): Promise<void> {
     const r = await fetch("/api/graph");
     const data = await r.json();
     if (data.nodes && data.edges) {
-      state.nodes = data.nodes.map((n: any) => ({ ...n, vx: 0, vy: 0 }));
+      // L'API ne fournit pas de positions : disposition circulaire initiale
+      const cx = 350, cy = 250;
+      const total = Math.max(1, data.nodes.length);
+      state.nodes = data.nodes.map((n: any, i: number) => {
+        const angle = (i / total) * Math.PI * 2;
+        const radius = 120 + (i % 3) * 40; // rayon varie pour eviter la superposition
+        return {
+          ...n,
+          x: typeof n.x === "number" && !isNaN(n.x) ? n.x : cx + Math.cos(angle) * radius,
+          y: typeof n.y === "number" && !isNaN(n.y) ? n.y : cy + Math.sin(angle) * radius,
+          vx: 0, vy: 0,
+        };
+      });
       state.edges = data.edges;
       return;
     }
@@ -111,15 +124,63 @@ async function buildGraphData(): Promise<void> {
   state.edges = [];
 }
 
+// -- Drag des nœuds -------------------------------------------------------------
+
+interface DragState { nodeId: string; offsetX: number; offsetY: number; }
+let dragState: DragState | null = null;
+
+function startNodeDrag(e: MouseEvent, nodeId: string): void {
+  const svg = document.querySelector<SVGSVGElement>(".aos-graph-svg");
+  const node = state.nodes.find(n => n.id === nodeId);
+  if (!svg || !node) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const rect = svg.getBoundingClientRect();
+  dragState = {
+    nodeId,
+    offsetX: (e.clientX - rect.left) - node.x,
+    offsetY: (e.clientY - rect.top) - node.y,
+  };
+  const el = svg.querySelector(`[data-node-id="${nodeId}"]`);
+  el?.classList.add("aos-graph-node-dragging");
+}
+
+function bindDragEvents(): void {
+  document.addEventListener("mousemove", (e) => {
+    if (!dragState) return;
+    const svg = document.querySelector<SVGSVGElement>(".aos-graph-svg");
+    if (!svg) return;
+    const node = state.nodes.find(n => n.id === dragState!.nodeId);
+    if (!node) return;
+    const rect = svg.getBoundingClientRect();
+    node.x = (e.clientX - rect.left) - dragState.offsetX;
+    node.y = (e.clientY - rect.top) - dragState.offsetY;
+    node.vx = 0;
+    node.vy = 0;
+    renderGraphCanvas();
+  });
+  document.addEventListener("mouseup", () => {
+    if (!dragState) return;
+    const svg = document.querySelector<SVGSVGElement>(".aos-graph-svg");
+    const el = svg?.querySelector(`[data-node-id="${dragState.nodeId}"]`);
+    el?.classList.remove("aos-graph-node-dragging");
+    dragState = null;
+  });
+}
+
 // -- Force simulation -----------------------------------------------------------
+
+let simGeneration = 0;
 
 function startForceSimulation(): void {
   state.animating = true;
+  const gen = ++simGeneration;
   const canvas = document.getElementById("aos-graph-canvas");
   if (!canvas) return;
 
   function tick(): void {
-    if (!state.animating) return;
+    // Garde : stoppe si le panel a change ou si une nouvelle simulation a demarre
+    if (!state.animating || gen !== simGeneration) return;
 
     // Repulsion
     for (let i = 0; i < state.nodes.length; i++) {
@@ -154,11 +215,15 @@ function startForceSimulation(): void {
       n.vy += (cy - n.y) * 0.001;
     });
 
-    // Apply velocities
+    // Apply velocities (le nœud en cours de drag est epingle)
     state.nodes.forEach(n => {
+      if (dragState?.nodeId === n.id) { n.vx = 0; n.vy = 0; return; }
       n.vx *= 0.9; n.vy *= 0.9;
       n.x += n.vx;
       n.y += n.vy;
+      // Garde NaN + bornes
+      if (isNaN(n.x)) n.x = 350;
+      if (isNaN(n.y)) n.y = 250;
       n.x = Math.max(30, Math.min(670, n.x));
       n.y = Math.max(30, Math.min(470, n.y));
     });
@@ -212,9 +277,10 @@ function renderGraphCanvas(): void {
     </svg>
   `;
 
-  // Bind node clicks
+  // Bind node clicks + drag
   canvas.querySelectorAll<SVGElement>(".aos-graph-node").forEach(el => {
     el.addEventListener("click", () => selectNode(el.dataset.nodeId!));
+    el.addEventListener("mousedown", (e) => startNodeDrag(e as MouseEvent, el.dataset.nodeId!));
   });
 }
 
@@ -364,7 +430,11 @@ async function removeConnection(source: string, target: string): Promise<void> {
 }
 
 async function onStoreUpdate(): Promise<void> {
-  if (store.getState().activePanel !== "graph") return;
+  if (store.getState().activePanel !== "graph") {
+    // Stoppe la simulation quand on quitte le panel
+    state.animating = false;
+    return;
+  }
   await buildGraphData();
   renderGraphCanvas();
 }

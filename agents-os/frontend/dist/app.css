@@ -1061,7 +1061,10 @@ body {
 .aos-gp-conn-label { font-size: 10px; color: var(--aos-text3); margin-left: 8px; }
 .aos-gp-connections { max-height: 200px; overflow-y: auto; }
 
-.aos-graph-node { transition: opacity 0.3s; }
+.aos-graph-node { transition: opacity 0.3s; cursor: grab; }
+.aos-graph-node:active { cursor: grabbing; }
+.aos-graph-node-dragging { filter: drop-shadow(0 0 8px rgba(88,166,255,0.6)); }
+.aos-graph-svg { user-select: none; -webkit-user-select: none; }
 .aos-graph-connect-hint {
   background: rgba(57,210,192,0.1);
   border: 1px solid var(--aos-cyan);

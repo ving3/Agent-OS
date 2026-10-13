@@ -4,7 +4,7 @@ import httpx
 from fastapi import APIRouter, Request
 from database import get_user_from_token
 from services.hermes_client import call_hermes_api
-from config import N8N_URL
+from config import N8N_URL, N8N_BASIC_AUTH_USER, N8N_BASIC_AUTH_PASSWORD
 from schemas import (
     N8nWorkflowListResponse, N8nWorkflow,
     N8nExecutionListResponse, N8nExecution,
@@ -20,7 +20,10 @@ def _require_auth(request: Request) -> bool:
 
 
 def _n8n_client() -> httpx.Client:
-    return httpx.Client(base_url=N8N_URL, timeout=15.0)
+    client = httpx.Client(base_url=N8N_URL, timeout=15.0)
+    if N8N_BASIC_AUTH_PASSWORD:
+        client.auth = (N8N_BASIC_AUTH_USER, N8N_BASIC_AUTH_PASSWORD)
+    return client
 
 
 @router.get("/status")

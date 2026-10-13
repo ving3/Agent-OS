@@ -128,6 +128,22 @@ export function renderAdmin(container: HTMLElement): void {
                 <label>Description</label>
                 <input type="text" id="aa-desc" class="aos-input" placeholder="Description du rôle de l'agent">
               </div>
+              <div class="aos-form-group" style="grid-column:1/-1">
+                <label>Persona (SOUL.md)</label>
+                <textarea id="aa-persona" class="aos-input" rows="9" style="resize:vertical;font-family:inherit;line-height:1.5"># Persona
+
+Tu es un agent IA spécialisé.
+
+## Rôle
+
+Décris ici la mission de l'agent.
+
+## Style de réponse
+
+- Réponds en français
+- Sois précis et technique
+</textarea>
+              </div>
               <div class="aos-form-group">
                 <label>Fournisseur LLM</label>
                 <select id="aa-provider" class="aos-select">
@@ -527,6 +543,7 @@ async function handleCreateAgent(): Promise<void> {
   const emoji = (document.getElementById("aa-emoji") as HTMLInputElement)?.value || "🤖";
   const color = (document.getElementById("aa-color") as HTMLInputElement)?.value || "#58a6ff";
   const desc = (document.getElementById("aa-desc") as HTMLInputElement)?.value.trim();
+  const persona = (document.getElementById("aa-persona") as HTMLTextAreaElement)?.value.trim() || "";
   const provider = (document.getElementById("aa-provider") as HTMLSelectElement)?.value || "deepseek";
   const modelEl = document.getElementById("aa-model") as HTMLInputElement | HTMLSelectElement;
   const model = modelEl?.value.trim() || "";
@@ -544,7 +561,7 @@ async function handleCreateAgent(): Promise<void> {
   try {
     const r = await fetch("/api/admin/agent/create", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, emoji, color, description: desc, provider, model, base_url: baseUrl }),
+      body: JSON.stringify({ name, emoji, color, description: desc, persona, provider, model, base_url: baseUrl }),
     });
     const d = await r.json();
     if (d.error) {

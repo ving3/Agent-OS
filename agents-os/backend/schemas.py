@@ -82,6 +82,7 @@ class CreateAgentRequest(BaseModel):
     emoji: str = "🤖"
     color: str = "#58a6ff"
     description: str = ""
+    persona: str = Field(default="", max_length=8000)  # contenu du SOUL.md
     provider: str = Field(default="deepseek", max_length=32)
     model: str = Field(default="deepseek-v4-pro", max_length=128)
     base_url: str = Field(default="", max_length=255)  # requis pour provider=custom

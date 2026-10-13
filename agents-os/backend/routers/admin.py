@@ -172,7 +172,7 @@ def create_agent(body: CreateAgentRequest, request: Request, response: Response)
     if provider.get("key_env"):
         api_key = os.environ.get(provider["key_env"], "")
 
-    if create_agent_profile(name, body.description, model, base_url, api_key):
+    if create_agent_profile(name, body.description, model, base_url, api_key, body.persona):
         AGENTS[name] = {"emoji": body.emoji, "color": body.color,
                         "desc": f"{body.description} [{provider['label']} · {model}]"}
         return {"success": True}

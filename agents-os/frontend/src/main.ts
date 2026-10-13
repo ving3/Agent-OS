@@ -29,7 +29,13 @@ function init(): void {
       if (!data || data.error) { renderLoginPage(); return; }
       renderShell();
       store.startPolling(5000);
+      // Ne re-rendre le panel QUE lors d'un changement de panel.
+      // (sinon, chaque notification du polling (5s) detruisait le DOM :
+      //  modales fermees, saisies effacees, selections perdues)
+      let currentPanel: string | null = null;
       store.subscribe(state => {
+        if (state.activePanel === currentPanel) return;
+        currentPanel = state.activePanel;
         const content = document.getElementById("aos-content");
         if (!content) return;
         switch (state.activePanel) {

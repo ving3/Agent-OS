@@ -80,12 +80,11 @@ def list_profiles() -> list[str]:
     return []
 
 
-def create_agent_profile(name: str, description: str, model: str, base_url: str, api_key: str = "") -> bool:
+def create_agent_profile(name: str, description: str, model: str, base_url: str, api_key: str = "", persona: str = "") -> bool:
     """Cree un profil agent directement sur le PVC Hermes (monte rw).
 
-    Plus robuste que kubectl exec : ecriture directe des fichiers
-    avec ownership hermes (uid/gid 10000) pour que l'agent puisse
-    ecrire dans son profil (memoires, sessions).
+    Le SOUL.md definit le Persona de l'agent : si un persona est fourni,
+    il est ecrit tel quel ; sinon un template generique est genere.
     """
     import os as _os
 
@@ -93,10 +92,14 @@ def create_agent_profile(name: str, description: str, model: str, base_url: str,
     try:
         profile_dir.mkdir(parents=True, exist_ok=True)
 
-        soul = (
-            f"# Agent {name}\n\n{description}\n\n"
-            f"## Role\n\nAgent cree depuis Agentic OS Dashboard.\n"
-        )
+        if persona.strip():
+            soul = persona.strip() + "\n"
+        else:
+            soul = (
+                f"# Agent {name}\n\n{description}\n\n"
+                f"## Role\n\nAgent cree depuis Agentic OS Dashboard.\n"
+            )
+
         config = f"model:\n  provider: openai\n  default: {model}\n  base_url: {base_url}\n"
         if api_key:
             config += f"  api_key: {api_key}\n"
